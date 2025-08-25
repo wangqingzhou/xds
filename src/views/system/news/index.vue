@@ -342,12 +342,13 @@ function shareXhs(id: number) {
   console.log(id);
   NoticeAPI.xhs(id).then((data: any) => {
     console.log(data);
+    console.log(data.picUrl);
     window.xhs.share({
       shareInfo: {
         type: "normal", // 或 'video'
         title: data.title, // 分享标题
         content: data.content, // 分享内容
-        images: [data.picurl], // 图片地址（必须是服务器地址）
+        images: [data.picUrl], // 图片地址（必须是服务器地址）
       },
       verifyConfig: {
         appKey: data.appKey,

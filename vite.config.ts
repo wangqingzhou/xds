@@ -46,7 +46,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         // 代理 /dev-api 的请求
         [env.VITE_APP_BASE_API]: {
           changeOrigin: true,
-          // 代理目标地址：https://api.youlai.tech
+          // 代理目标地址：https://api.micrai.com
           target: env.VITE_APP_API_URL,
           rewrite: (path: string) => path.replace(new RegExp("^" + env.VITE_APP_BASE_API), ""),
         },
