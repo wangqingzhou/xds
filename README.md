@@ -14,12 +14,12 @@
 
 ## 项目简介
 
-[micrai-cms-admin](https://gitee.com/hebwkznkjyxgs_admin/micrai.git) 基于 Vue3、Vite7、TypeScript 和 Element-Plus 搭建的极简开箱即用企业级后台管理前端模板，可用于网站后台、智能体后台、协同办公前端。 配套 Java 后端   和 python  智能体后端  。
+[micrai-cms-admin](https://gitee.com/hebwkznkjyxgs_admin/micrai-cms-admin.git) 基于 Vue3、Vite7、TypeScript 和 Element-Plus 搭建的极简开箱即用企业级后台管理前端模板，可用于网站后台、智能体后台、协同办公前端。 配套 Java 后端   和 python  智能体后端  。
 
 ## 项目特色
 
 
-- **数据交互**： [线上接口文档](http://ai.micrai.com:8045/swagger-ui/index.html)，并提供配套的 [Java]  和 [python]  后端源码。
+- **数据交互**： [线上接口文档](http://micrai.com:8045/swagger-ui/index.html)，并提供配套的 [Java]  和 [python]  后端源码。
 - **简洁易用**： Vue3版本的后台管理系统，可用于网站后台，协同办公、智能体后台。
 - **系统功能：** 提供用户管理、角色管理、菜单管理、部门管理、字典管理、系统配置、文章管理 、栏目管理、日志管理等功能模块。
 - **权限管理：** 支持动态路由、按钮权限、角色权限和数据权限等多种权限管理方式。
@@ -52,7 +52,7 @@
 
 ```bash
 # 克隆代码
-git clone https://gitee.com/hebwkznkjyxgs_admin/micrai.git
+git clone https://gitee.com/hebwkznkjyxgs_admin/micrai-cms-admin.git
 
 # 切换目录
 cd vue3-element-admin
