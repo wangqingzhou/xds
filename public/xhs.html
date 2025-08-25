@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>helloworld</title>
+		<script src="https://fe-static.xhscdn.com/biz-static/goten/xhs-1.0.1.js"></script>
+
+<script src="jquery-3.7.1.min.js"></script>
+ 
+<script type="text/javascript">
+ console.log("请求b!");
+ doAjax2();
+ console.log("请求over!");
+      //$.get()方法请求
+      function doAjax2(){
+       // let name1 = $("#name").val()
+    //    let text1 = $("#text1").val()
+        $.get(
+          //GET 请求的 URL 路径可以用来传参。这种传参方式叫做 查询字符串传参。
+          // 在 GET 请求中，参数被附加在 URL 的末尾，并通过 ? 符号开始，多个参数之间用 & 符号分隔。
+          "http://cwebcrm.cn:8046/api/v1/notices/1/xhs",
+          // "name="+name1+"&text1="+text1,//data：//发送给服务器端的请求参数(传入服务器的参数)，格式可以是key=value 可选
+          //  {//json形式
+          //    nameT:name1,
+          //    text1:text1
+          //  },
+          function (data){//回调函数,服务器响应成功后,AJAX自动调用函数,这个函数接收返回的数据作为第一个参数  可选
+        //    $("#box").prepend('<p>'+data+'</p>')
+          
+console.log(data);
+var title=data.data.title;
+console.log(title);
+var content=data.data.content;
+var picurl =data.data.picurl;
+var appKey=data.data.appKey;
+var nonce=data.data.nonce;
+var timestamp=data.data.timestamp;
+var signature=data.data.signature;
+console.log(signature);
+xhs.share({
+  shareInfo: {
+    type: 'normal', // 必填，笔记类型 'video' | 'normal'
+    title: title, // 笔记标题
+    content: content, // 笔记正文
+    images:  [picurl], //图文类型必填，笔记图片，必须是服务器地址，暂时不支持本地文件
+    video: ' ', // 视频类型必填，必须是服务器地址
+    cover: picurl // 视频封面图，必须是服务器地址，暂时不支持本地文件
+  },
+  verifyConfig: {
+    appKey: 'red.DRDamsB0j2c63RPC ' ,//必填，应用的唯一标识,
+    nonce: nonce, // 必填，服务端生成签名的随机字符串
+    timestamp: timestamp , // 必填，服务端生成签名的时间戳
+    signature: signature, // 必填，服务端生成的签名
+  },
+  fail: (e) => {
+   // 调用失败时执行的回调函数
+console.log("调用失败"+e);
+  alert(e);
+  },
+})
+          },
+         // "text"//dataType：预期返回数据的类型  可选
+
+        )
+      }
+    </script>
+
+ 
+</head>
+<body>
+     aa
+</body>
+</html>
