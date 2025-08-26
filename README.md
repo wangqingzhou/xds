@@ -107,7 +107,7 @@ server {
 
 1. 获取基于 `Java` 和 `SpringBoot` 开发的后端  源码。
 2. 根据后端工程的说明文档 [README.md]  完成本地启动。
-3. 修改 `.env.development` 文件中的 `VITE_APP_API_URL` 的值，将其从 http://micrai.com:8045 更改为 http://localhost:8989 即可。
+3. # 线上  .env.production 中的  VITE_APP_API_URL = ''  # 关键修改：留空后，请求会自动使用当前页面的域名（如 demo.micrai.com）
 
 
 Thanks to all the contributors!
