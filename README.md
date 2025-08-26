@@ -94,8 +94,8 @@ server {
 
     # 反向代理配置
     location /prod-api/ {
-        # 请将 micrai.com 替换为您的后端 API 地址，并注意保留后面的斜杠 /
-        proxy_pass http://micrai.com:8045/;
+        # 请将  端口 8045 替换为您的后端 端口 地址，并注意保留后面的斜杠 /
+        proxy_pass http://localhost:8045/;
     }
 }
 ```
