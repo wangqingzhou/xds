@@ -2,7 +2,7 @@
 <template>
   <div class="app-container">
     <el-link
-      href="https://gitee.com/youlaiorg/vue3-element-admin/blob/master/src/views/demo/icon-selector.vue"
+      href="https://gitee.com/hebwkznkjyxgs_admin/micrai-cms-admin/blob/master/src/views/demo/icon-selector.vue"
       type="primary"
       target="_blank"
       class="mb-10"
