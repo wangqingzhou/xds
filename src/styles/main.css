@@ -1,0 +1,57 @@
+/* 添加响应式设计 */
+@media (max-width: 768px) {
+  .content-area {
+    flex-direction: column;
+  }
+
+  .editor-section,
+  .assistant-section {
+    flex: none;
+    height: 50vh;
+  }
+}
+
+/* 暗色模式支持 */
+.dark-mode {
+  --bg-primary: #1a1a1a;
+  --bg-secondary: #2d2d2d;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0a0;
+  --border-color: #404040;
+}
+
+.dark-mode .app-sidebar {
+  background: var(--bg-secondary);
+  border-right-color: var(--border-color);
+}
+
+.dark-mode .sidebar-header {
+  background: var(--bg-primary);
+  border-bottom-color: var(--border-color);
+}
+
+.dark-mode .sidebar-header h3 {
+  color: var(--text-primary);
+}
+
+.dark-mode .action-btn,
+.dark-mode .mode-btn,
+.dark-mode .recent-action {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+.dark-mode .action-btn:hover,
+.dark-mode .mode-btn:hover {
+  background: var(--bg-secondary);
+}
+
+.dark-mode .btn-text,
+.dark-mode .mode-text,
+.dark-mode .action-text {
+  color: var(--text-primary);
+}
+
+.dark-mode .action-time {
+  color: var(--text-secondary);
+}
