@@ -1,111 +1,142 @@
 <template>
-  <div>
-    <h3 text-center m-0 mb-20px>{{ t("login.login") }}</h3>
+  <div class="login-form-container">
+    <h3 class="form-title">{{ t("login.login") }}</h3>
+
     <el-form
       ref="loginFormRef"
       :model="loginFormData"
       :rules="loginRules"
       size="large"
       :validate-on-rule-change="false"
+      class="login-form"
     >
       <!-- 用户名 -->
       <el-form-item prop="username">
-        <el-input v-model.trim="loginFormData.username" :placeholder="t('login.username')">
+        <el-input
+          v-model.trim="loginFormData.username"
+          :placeholder="t('login.username')"
+          class="custom-input"
+        >
           <template #prefix>
-            <el-icon><User /></el-icon>
+            <el-icon class="input-icon"><User /></el-icon>
           </template>
         </el-input>
       </el-form-item>
 
       <!-- 密码 -->
-      <el-tooltip :visible="isCapsLock" :content="t('login.capsLock')" placement="right">
-        <el-form-item prop="password">
+      <el-form-item prop="password">
+        <el-tooltip :visible="isCapsLock" :content="t('login.capsLock')" placement="right">
           <el-input
             v-model.trim="loginFormData.password"
             :placeholder="t('login.password')"
             type="password"
             show-password
+            class="custom-input"
             @keyup="checkCapsLock"
             @keyup.enter="handleLoginSubmit"
           >
             <template #prefix>
-              <el-icon><Lock /></el-icon>
+              <el-icon class="input-icon"><Lock /></el-icon>
             </template>
           </el-input>
-        </el-form-item>
-      </el-tooltip>
-
-      <!-- 验证码 
-      <el-form-item prop="captchaCode">
-        <div flex>
-          <el-input
-            v-model.trim="loginFormData.captchaCode"
-            :placeholder="t('login.captchaCode')"
-            @keyup.enter="handleLoginSubmit"
-          >
-            <template #prefix>
-              <div class="i-svg:captcha" />
-            </template>
-          </el-input>
-          <div cursor-pointer h="[40px]" w="[120px]" flex-center ml-10px @click="getCaptcha">
-            <el-icon v-if="codeLoading" class="is-loading"><Loading /></el-icon>
-
-            <img
-              v-else
-              object-cover
-              border-rd-4px
-              p-1px
-              shadow="[0_0_0_1px_var(--el-border-color)_inset]"
-              :src="captchaBase64"
-              alt="code"
-            />
-          </div>
-        </div>
+        </el-tooltip>
       </el-form-item>
--->
-      <div class="flex-x-between w-full">
-        <el-checkbox v-model="loginFormData.rememberMe">{{ t("login.rememberMe") }}</el-checkbox>
-        <el-link type="primary" underline="never" @click="toOtherForm('resetPwd')">
+
+      <!-- 操作区域 -->
+      <div class="action-area">
+        <el-checkbox v-model="loginFormData.rememberMe" class="remember-me">
+          {{ t("login.rememberMe") }}
+        </el-checkbox>
+        <el-link
+          type="primary"
+          underline="never"
+          class="forgot-link"
+          @click="toOtherForm('resetPwd')"
+        >
           {{ t("login.forgetPassword") }}
         </el-link>
       </div>
 
       <!-- 登录按钮 -->
       <el-form-item>
-        <el-button :loading="loading" type="primary" class="w-full" @click="handleLoginSubmit">
-          {{ t("login.login") }}
+        <el-button :loading="loading" type="primary" class="login-btn" @click="handleLoginSubmit">
+          <template v-if="!loading">
+            <el-icon class="btn-icon"><Right /></el-icon>
+            {{ t("login.login") }}
+          </template>
+          <template v-else>
+            <el-icon class="is-loading"><Loading /></el-icon>
+            登录中...
+          </template>
         </el-button>
       </el-form-item>
     </el-form>
 
-    <div flex-center gap-10px>
-      <el-text size="default">管理员：test1 密码：111111</el-text>
+    <!-- 注册链接 -->
+    <div class="register-link">
+      <span class="link-text">{{ t("login.noAccount") }}</span>
+      <el-link
+        type="primary"
+        underline="never"
+        class="register-link-btn"
+        @click="toOtherForm('register')"
+      >
+        {{ t("login.reg") }}
+      </el-link>
+    </div>
+
+    <!-- 测试账号提示 -->
+    <div class="test-account">
+      <el-text type="info" size="small">
+        <el-icon><InfoFilled /></el-icon>
+        测试账号：test1 / 111111
+      </el-text>
     </div>
 
     <!-- 第三方登录 -->
+    <div class="third-party-login">
+      <div class="divider">
+        <span class="divider-text">或使用其他方式登录</span>
+      </div>
+      <div class="social-buttons">
+        <el-button circle class="social-btn wechat">
+          <el-icon><ChatRound /></el-icon>
+        </el-button>
+        <el-button circle class="social-btn qq">
+          <el-icon><Iphone /></el-icon>
+        </el-button>
+        <el-button circle class="social-btn weibo">
+          <el-icon><Comment /></el-icon>
+        </el-button>
+      </div>
+    </div>
   </div>
 </template>
+
 <script setup lang="ts">
 import type { FormInstance } from "element-plus";
+import {
+  User,
+  Lock,
+  Right,
+  Loading,
+  InfoFilled,
+  ChatRound,
+  Iphone,
+  Comment,
+} from "@element-plus/icons-vue";
 import AuthAPI, { type LoginFormData } from "@/api/auth.api";
 import router from "@/router";
 import { useUserStore } from "@/store";
-import CommonWrapper from "@/components/CommonWrapper/index.vue";
 import { Auth } from "@/utils/auth";
 
 const { t } = useI18n();
 const userStore = useUserStore();
 const route = useRoute();
 
-//onMounted(() => getCaptcha());
-
 const loginFormRef = ref<FormInstance>();
 const loading = ref(false);
-// 是否大写锁定
 const isCapsLock = ref(false);
-// 验证码图片Base64字符串
-const captchaBase64 = ref();
-// 记住我
 const rememberMe = Auth.getRememberMe();
 
 const loginFormData = ref<LoginFormData>({
@@ -137,63 +168,28 @@ const loginRules = computed(() => {
         trigger: "blur",
       },
     ],
-    captchaCode: [
-      {
-        required: true,
-        trigger: "blur",
-        message: t("login.message.captchaCode.required"),
-      },
-    ],
   };
 });
 
-// 获取验证码
-const codeLoading = ref(false);
-function getCaptcha() {
-  codeLoading.value = true;
-  AuthAPI.getCaptcha()
-    .then((data) => {
-      loginFormData.value.captchaKey = data.captchaKey;
-      captchaBase64.value = data.captchaBase64;
-    })
-    .finally(() => (codeLoading.value = false));
-}
-
-/**
- * 登录提交
- */
 async function handleLoginSubmit() {
   try {
-    // 1. 表单验证
     const valid = await loginFormRef.value?.validate();
     if (!valid) return;
 
     loading.value = true;
-
-    // 2. 执行登录
     await userStore.login(loginFormData.value);
+    await userStore.getUserInfo();
 
-    // 3. 获取用户信息（包含用户角色，用于路由生成）
-    const userData = await userStore.getUserInfo();
-    console.log(userData);
-
-    // 4. 登录成功，简单跳转，让路由守卫处理后续逻辑
     const redirectPath = (route.query.redirect as string) || "/";
-
-    // 使用push而不是replace，避免与路由守卫冲突
     await router.push(decodeURIComponent(redirectPath));
   } catch (error) {
-    // 5. 统一错误处理
-    //getCaptcha(); // 刷新验证码
     console.error("登录失败:", error);
   } finally {
     loading.value = false;
   }
 }
 
-// 检查输入大小写
 function checkCapsLock(event: KeyboardEvent) {
-  // 防止浏览器密码自动填充时报错
   if (event instanceof KeyboardEvent) {
     isCapsLock.value = event.getModifierState("CapsLock");
   }
@@ -206,24 +202,254 @@ function toOtherForm(type: "register" | "resetPwd") {
 </script>
 
 <style lang="scss" scoped>
-.third-party-login {
-  .divider-container {
-    display: flex;
-    align-items: center;
-    margin: 20px 0;
+.login-form-container {
+  width: 100%;
+}
 
-    .divider-line {
-      flex: 1;
+.form-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 32px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-form {
+  margin-bottom: 24px;
+}
+
+.custom-input {
+  border-radius: 12px;
+
+  :deep(.el-input__wrapper) {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover,
+    &.is-focus {
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+  }
+}
+
+.input-icon {
+  color: #667eea;
+  font-size: 18px;
+}
+
+.action-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.remember-me {
+  :deep(.el-checkbox__label) {
+    color: #7f8c8d;
+    font-size: 14px;
+  }
+}
+
+.forgot-link {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.login-btn {
+  width: 100%;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .btn-icon {
+    margin-right: 8px;
+  }
+}
+
+.register-link {
+  text-align: center;
+  margin: 24px 0;
+  padding: 16px 0;
+  border-top: 1px solid #ecf0f1;
+
+  .link-text {
+    color: #7f8c8d;
+    font-size: 14px;
+    margin-right: 8px;
+  }
+
+  .register-link-btn {
+    font-weight: 600;
+    font-size: 14px;
+  }
+}
+
+.test-account {
+  text-align: center;
+  margin: 16px 0;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+
+  .el-icon {
+    margin-right: 6px;
+    color: #667eea;
+  }
+}
+
+.third-party-login {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #ecf0f1;
+
+  .divider {
+    position: relative;
+    text-align: center;
+    margin-bottom: 24px;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
       height: 1px;
-      background: linear-gradient(to right, transparent, var(--el-border-color-light), transparent);
+      background: linear-gradient(to right, transparent, #dcdfe6, transparent);
     }
 
     .divider-text {
+      position: relative;
+      display: inline-block;
       padding: 0 16px;
+      background: white;
+      color: #7f8c8d;
       font-size: 12px;
-      color: var(--el-text-color-regular);
-      white-space: nowrap;
+      z-index: 1;
     }
+  }
+
+  .social-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .social-btn {
+    width: 48px;
+    height: 48px;
+    border: 1px solid #dcdfe6;
+    background: white;
+    transition: all 0.3s ease;
+
+    &.wechat:hover {
+      border-color: #07c160;
+      color: #07c160;
+      transform: translateY(-2px);
+    }
+
+    &.qq:hover {
+      border-color: #12b7f5;
+      color: #12b7f5;
+      transform: translateY(-2px);
+    }
+
+    &.weibo:hover {
+      border-color: #e6162d;
+      color: #e6162d;
+      transform: translateY(-2px);
+    }
+  }
+}
+
+/* 深色模式适配 */
+/* 修复深色模式文字看不清的问题 */
+:global(.dark) {
+  .form-title {
+    color: rgba(255, 255, 255, 0.9) !important; /* 确保标题在深色模式下可见 */
+  }
+
+  .link-text,
+  .test-account .el-text {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+
+  /* 确保所有表单文字在深色模式下清晰 */
+  :deep(.el-form-item__label),
+  :deep(.el-input__inner),
+  :deep(.el-checkbox__label),
+  :deep(.el-link) {
+    color: rgba(255, 255, 255, 0.85) !important;
+  }
+
+  /* 修复输入框在深色模式下的背景 */
+  :deep(.el-input__wrapper) {
+    background-color: rgba(255, 255, 255, 0.05);
+
+    &:hover {
+      box-shadow: 0 0 0 1px var(--el-color-primary);
+    }
+  }
+
+  /* 测试账号背景在深色模式下调整 */
+  .test-account {
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* 修复白天模式标题对比度 */
+.form-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1f2d3d; /* 使用更深的颜色确保在浅色背景下对比度足够 */
+  margin: 0 0 32px 0;
+}
+
+/* 确保版本号在任何模式下都清晰 */
+:deep(.el-badge__content) {
+  font-weight: 600;
+  border: none;
+}
+/* 响应式设计 */
+@media (max-width: 480px) {
+  .form-title {
+    font-size: 20px;
+    margin-bottom: 24px;
+  }
+
+  .action-area {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .social-buttons {
+    gap: 12px;
+  }
+
+  .social-btn {
+    width: 44px;
+    height: 44px;
   }
 }
 </style>

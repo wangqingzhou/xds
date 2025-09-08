@@ -19,7 +19,17 @@ const AuthAPI = {
       },
     });
   },
-
+  /** 注册接口 */
+  registerUser(data: RegisterFormData) {
+    return request<any, ApiResult>({
+      url: `/api/v1/users/regUser`,
+      method: "post",
+      data,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  },
   /** 刷新 token 接口*/
   refreshToken(refreshToken: string) {
     return request<any, LoginResult>({
@@ -83,4 +93,17 @@ export interface CaptchaInfo {
   captchaKey: string;
   /** 验证码图片Base64字符串 */
   captchaBase64: string;
+}
+/** 注册表单数据 */
+export interface RegisterFormData {
+  /** 用户名 */
+  username: string;
+  /** 班级名称 */
+  className: string;
+  /** 学号 */
+  studentId: string;
+  /** 手机号 */
+  phone: string;
+  /** 密码 */
+  password: string;
 }
