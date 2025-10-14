@@ -10,22 +10,68 @@
     <el-form ref="formRef" :model="model" :rules="rules" size="large" class="register-form">
       <!-- 用户名 -->
       <el-form-item prop="username">
-        <el-input v-model.trim="model.username" placeholder="请输入用户名" class="custom-input">
+        <el-input v-model.trim="model.username" placeholder="请输入姓名" class="custom-input">
           <template #prefix>
             <el-icon class="input-icon"><User /></el-icon>
           </template>
         </el-input>
       </el-form-item>
 
-      <!-- 班级 -->
+      <!-- 性别 -->
+      <el-form-item prop="gender">
+        <el-select v-model="model.gender" placeholder="请选择性别" class="custom-select">
+          <template #prefix>
+            <el-icon class="input-icon"><UserFilled /></el-icon>
+          </template>
+          <el-option
+            v-for="item in genderOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+      </el-form-item>
+
+      <!-- 专业班级 -->
       <el-form-item prop="className">
-        <el-input v-model.trim="model.className" placeholder="请输入班级名称" class="custom-input">
+        <el-input
+          v-model.trim="model.className"
+          placeholder="请输入专业班级名称"
+          class="custom-input"
+        >
           <template #prefix>
             <el-icon class="input-icon"><School /></el-icon>
           </template>
         </el-input>
       </el-form-item>
 
+      <!-- 角色选择：添加 multiple 属性，支持多选 -->
+      <el-form-item prop="roleIds">
+        <el-select
+          v-model="model.roleIds"
+          placeholder="请选择学历类型"
+          class="custom-select"
+          multiple
+          max="1"
+        >
+          <template #prefix>
+            <el-icon class="input-icon"><Avatar /></el-icon>
+          </template>
+          <el-option
+            v-for="item in roleOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          >
+            <div class="role-option">
+              <el-icon class="role-icon">
+                <component :is="item.value === 1 ? 'User' : 'GraduationCap'" />
+              </el-icon>
+              <span class="role-label">{{ item.label }}</span>
+            </div>
+          </el-option>
+        </el-select>
+      </el-form-item>
       <!-- 学号 -->
       <el-form-item prop="studentId">
         <el-input v-model.trim="model.studentId" placeholder="请输入学号" class="custom-input">
@@ -114,7 +160,17 @@
 
 <script setup lang="ts">
 import type { FormInstance } from "element-plus";
-import { Lock, User, School, Ticket, Iphone } from "@element-plus/icons-vue";
+import {
+  Lock,
+  User,
+  School,
+  Ticket,
+  Iphone,
+  Avatar,
+  Reading,
+  Promotion,
+  UserFilled,
+} from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import AuthAPI from "@/api/auth.api";
 
@@ -128,21 +184,56 @@ const isRead = ref(false);
 
 interface RegisterModel {
   username: string;
+  gender: string;
   className: string;
   studentId: string;
   phone: string;
   password: string;
   confirmPassword: string;
+
+  /** 角色ID集合：适配后端 List<Long>，定义为 number 数组 */
+  roleIds?: number[];
+  /** 用户状态(1:正常;0:禁用) */
+  status?: number;
 }
 
 const model = ref<RegisterModel>({
   username: "",
+  gender: "",
   className: "",
   studentId: "",
   phone: "",
   password: "",
   confirmPassword: "",
+  roleIds: [],
+  status: 1,
 });
+
+// 性别选项
+const genderOptions = ref([
+  {
+    label: "男",
+    value: 64,
+  },
+  {
+    label: "女",
+    value: 65,
+  },
+]);
+
+// 固定角色选项（带图标）
+const roleOptions = ref([
+  {
+    label: "本科生",
+    value: 14,
+    icon: Reading,
+  },
+  {
+    label: "研究生",
+    value: 15,
+    icon: Promotion,
+  },
+]);
 
 const rules = {
   username: [
@@ -150,6 +241,28 @@ const rules = {
       required: true,
       message: "请输入用户名",
       trigger: "blur",
+    },
+  ],
+  gender: [
+    {
+      required: true,
+      message: "请选择性别",
+      trigger: "change",
+    },
+  ],
+  roleIds: [
+    {
+      required: true,
+      message: "请选择学历",
+      trigger: "blur",
+      type: "array", // 校验数组类型
+    },
+    {
+      min: 1,
+      max: 1, // 限制数组长度只能为1（即只能选一个）
+      message: "只能选择一种学历类型",
+      trigger: "blur",
+      type: "array",
     },
   ],
   className: [
@@ -235,30 +348,34 @@ const submit = async () => {
     // 准备提交数据
     const submitData = {
       username: model.value.username,
+      gender: model.value.gender,
       className: model.value.className,
-      student_Id: model.value.studentId,
+      studentId: model.value.studentId,
       mobile: model.value.phone,
       password: model.value.password,
+      roleIds: model.value.roleIds, // 添加角色类型
+      status: 1,
     };
 
     // 调用注册API
-    const response = await AuthAPI.registerUser(submitData);
+    // 由于拦截器只返回 data，我们需要用 try-catch 判断成功
+    const responseData = await AuthAPI.registerUser(submitData);
 
-    if (response.code === "0") {
-      ElMessage.success("注册成功！");
-      setTimeout(() => {
-        toLogin();
-      }, 1500);
-    } else {
-      ElMessage.error(response.msg || "注册失败，请重试");
-    }
-  } catch (error: any) {
+    // 如果执行到这里，说明请求成功（没有进入 catch）
+    ElMessage.success("注册成功！");
+    setTimeout(() => {
+      toLogin();
+    }, 1500);
+  } catch (error) {
+    // 这里处理业务错误
     console.error("注册失败:", error);
-    ElMessage.error(error.response?.data?.msg || error.message || "注册失败，请重试");
+    ElMessage.error(error.message || "注册失败，请重试");
   } finally {
     loading.value = false;
   }
 };
+
+onMounted(async () => {});
 </script>
 
 <style scoped>
@@ -314,7 +431,7 @@ const submit = async () => {
 .custom-input:deep(.el-input__wrapper:hover),
 .custom-input:deep(.el-input__wrapper.is-focus) {
   box-shadow: 0 4px 12px rgba(76, 87, 235, 0.2);
-  transform: translateY(-1px);
+  /* 移除 transform 避免元素移动 */
 }
 
 .input-icon {
@@ -351,12 +468,12 @@ const submit = async () => {
 }
 
 .register-btn:hover {
-  transform: translateY(-2px);
+  /* 移除 transform 避免按钮移动 */
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .register-btn:active {
-  transform: translateY(0);
+  /* 移除 transform 避免按钮移动 */
 }
 
 .register-footer {
@@ -428,5 +545,59 @@ const submit = async () => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 选择框样式 - 修复圆角问题 */
+.custom-select {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.custom-select:deep(.el-select__wrapper) {
+  border-radius: 12px;
+}
+
+.custom-select:deep(.el-input__wrapper) {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.custom-select:deep(.el-input__wrapper:hover),
+.custom-select:deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 4px 12px rgba(76, 87, 235, 0.2) !important;
+  /* 移除 transform 避免元素移动 */
+}
+
+/* 下拉菜单圆角 */
+.custom-select:deep(.el-select-dropdown) {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.custom-select:deep(.el-select-dropdown__list) {
+  padding: 8px;
+}
+
+.custom-select:deep(.el-select-dropdown__item) {
+  border-radius: 8px;
+  margin: 2px 0;
+}
+
+/* 角色选项样式 */
+.role-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.role-icon {
+  color: #667eea;
+  font-size: 16px;
+}
+
+.role-label {
+  font-size: 14px;
 }
 </style>

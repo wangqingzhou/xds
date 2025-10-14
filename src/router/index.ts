@@ -77,7 +77,44 @@ export const constantRoutes: RouteRecordRaw[] = [
         },
         props: true,
       },
-
+      {
+        path: "materials",
+        name: "Materialse",
+        component: () => import("@/views/system/materials/index.vue"),
+        meta: {
+          title: "新建申请",
+          hidden: true,
+        },
+      },
+      {
+        path: "materials/edit/:id",
+        name: "Materialsedit",
+        component: () => import("@/views/system/materials/index.vue"),
+        meta: {
+          title: "编辑申请",
+          hidden: true,
+        },
+        props: true,
+      },
+      {
+        path: "materials/view/:id",
+        name: "Materialsview",
+        component: () => import("@/views/system/materials/components/AuditDetailDialog.vue"),
+        meta: {
+          title: "查看申请",
+          hidden: true,
+        },
+        props: true,
+      },
+      {
+        path: "/system/materials/list",
+        name: "MaterialList", // 这里必须与代码中使用的名称一致
+        component: () => import("@/views/system/materials/list.vue"),
+        meta: {
+          title: "申请列表",
+          hidden: true,
+        },
+      },
       {
         path: "my-notice",
         name: "MyNotice",

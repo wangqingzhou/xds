@@ -149,6 +149,8 @@ pnpm config set registry https://registry.npmmirror.com
 # 安装依赖
 pnpm install
 
+npm install pdfjs-dist --save
+
 # 启动运行
 pnpm run dev
 ```
@@ -401,6 +403,149 @@ Thanks to all the contributors!
 
 
 
+
+
+
+
+
+
+
+
+-- 选调生材料申请表
+CREATE TABLE `material_application` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `student_id` varchar(50) NOT NULL COMMENT '学号',
+  `student_name` varchar(50) NOT NULL COMMENT '姓名',
+  `school` varchar(100) NOT NULL COMMENT '毕业院校',
+  `major` varchar(100) NOT NULL COMMENT '专业',
+  `education` varchar(20) NOT NULL COMMENT '最高学历',
+  `graduation_date` date NOT NULL COMMENT '毕业日期',
+  `political_status` varchar(20) NOT NULL COMMENT '政治面貌',
+  `party_proof_file_ids` varchar(500) DEFAULT NULL COMMENT '党员证明文件ID列表',
+  `party_valid` varchar(10) DEFAULT NULL COMMENT '党员证明真实性确认',
+  `cadre_experience` varchar(20) DEFAULT NULL COMMENT '学生干部经历',
+  `cadre_position` varchar(100) DEFAULT NULL COMMENT '具体职务',
+  `cadre_proof_file_id` varchar(50) DEFAULT NULL COMMENT '学生干部证明文件ID',
+  `cadre_valid` varchar(10) DEFAULT NULL COMMENT '学生干部证明真实性确认',
+  `military_experience` varchar(10) DEFAULT NULL COMMENT '参军入伍经历',
+  `military_proof_file_id` varchar(50) DEFAULT NULL COMMENT '入伍证明文件ID',
+  `military_valid` varchar(10) DEFAULT NULL COMMENT '入伍证明真实性确认',
+  `award_level` varchar(20) DEFAULT NULL COMMENT '获奖级别',
+  `award_name` varchar(200) DEFAULT NULL COMMENT '获奖名称',
+  `awards_proof_file_ids` varchar(500) DEFAULT NULL COMMENT '获奖证书文件ID列表',
+  `award_valid` varchar(10) DEFAULT NULL COMMENT '获奖证书真实性确认',
+  `ranking_level` varchar(20) NOT NULL COMMENT '专业排名区间',
+  `failed_courses` varchar(20) NOT NULL COMMENT '不及格课程',
+  `transcript_file_id` varchar(50) NOT NULL COMMENT '成绩单文件ID',
+  `transcript_valid` varchar(10) NOT NULL COMMENT '成绩单真实性确认',
+  `rank_proof_file_id` varchar(50) NOT NULL COMMENT '专业排名证明文件ID',
+  `rank_valid` varchar(10) NOT NULL COMMENT '排名证明真实性确认',
+  `id_card_file_id` varchar(50) NOT NULL COMMENT '身份证文件ID',
+  `id_valid` varchar(10) NOT NULL COMMENT '身份证真实性确认',
+  `overall_valid` varchar(10) NOT NULL COMMENT '总体声明确认',
+  `score` decimal(5,2) DEFAULT NULL COMMENT '计算得分',
+  `status` varchar(20) DEFAULT 'draft' COMMENT '状态（draft：草稿，submitted：已提交）',
+  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_student_id` (`student_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='选调生材料申请表';
+
+
+
+
+“信小艾”AI辅导员项目由哈尔滨微孔智能科技有限公司开发，旨在通过基于大语言模型（LLM）和知识库驱动的智能助手平台，辅助高校辅导员进行学生管理。该系统采用模块化、分层式架构设计，具备核心业务逻辑处理、智能推理与语义理解、数据存储与管理等功能。系统支持多租户架构，适用于不同高校或院系独立部署。核心目标包括减轻辅导员工作负担、提供7×24小时在线咨询服务、实现智能响应等。通过集成多种关键技术，如知识库处理、安全与合规机制等，系统确保了高可用性、强安全性和易配置性。
+
+
+“信小艾”AI辅导员项目的创新功能点包括：
+1. 知识增强型生成（RAG）：结合大语言模型和知识库，避免回答错误。
+2. 多场景智能响应：实现政策解读、学业指导、心理支持等智能响应。
+3. 全天候在线咨询：提供7×24小时在线服务，减轻辅导员负担。
+4. 精细化模型配置：管理员可对AI助手进行详细配置，包括模型选择、提示词设计等。
+5. 心理边界控制：心理类模型中加入“非医疗建议”声明，识别高风险对话并预警。
+6. 多租户架构：支持不同高校或院系独立部署，确保数据隔离。
+7. 可扩展性设计：支持模型更新和第三方系统对接，多语言支持。
+8. 日志审计与数据隔离：记录所有对话和操作。
+
+
+        审核状态	17
+		草稿	DRAFT
+		已提交	SUBMITTED
+		已退回	RETURNED
+		已审核	APPROVED
+
+
+	-- 计算学业成绩学院审核分（20分）
+	UPDATE material_form mf
+	JOIN (
+	    SELECT MAX(gpa_score) AS max_gpa
+	    FROM material_form
+	    WHERE gpa_score IS NOT NULL
+	) AS max_gpa ON 1=1
+	SET mf.college_score_academic =
+	    CASE
+	        WHEN max_gpa.max_gpa = 0 THEN 0
+	        ELSE ROUND((mf.gpa_score / max_gpa.max_gpa) * 20, 2)
+	    END
+	WHERE mf.gpa_score IS NOT NULL;
+
+
+
+	-- 计算学业奖励学院审核分（10分）
+	-- 1. 创建临时表存储字典数据
+	CREATE TEMPORARY TABLE temp_dict_scholarship AS
+	SELECT
+	    id,
+	    name,
+	    score
+	FROM sys_dicttree
+	WHERE type = 'scholarship' AND id IN (38, 39, 40, 41)
+	ORDER BY score DESC;# 影响列数： 4
+  -- 按分值降序排列，确保取最高分
+	-- 2. 创建临时表存储每个学生的奖学金最高分
+	CREATE TEMPORARY TABLE temp_student_scholarship AS
+	SELECT
+	    mf.id,
+	    mf.student_name,
+	    mf.scholarship,
+	    -- 获取学生奖学金的最高分：先去掉方括号，然后按逗号分割，再匹配字典
+	    (
+	        SELECT MAX(ds.score)
+	        FROM temp_dict_scholarship ds
+	        WHERE FIND_IN_SET(ds.id, REPLACE(REPLACE(mf.scholarship, '[', ''), ']', '')) > 0
+	    ) AS max_scholarship_score
+	FROM material_form mf;# 影响列数： 3
+
+	-- 3. 计算整个表的最高分
+	SET @max_scholarship_score = (SELECT MAX(max_scholarship_score) FROM temp_student_scholarship);# MySQL 返回的查询结果为空(即零行)。
+
+	-- 4. 更新原表中的学业奖励学院审核分
+	UPDATE material_form mf
+	JOIN temp_student_scholarship t ON mf.id = t.id
+	SET mf.college_score_scholarship =
+	    CASE
+	        WHEN t.max_scholarship_score IS NULL OR @max_scholarship_score = 0 THEN 0
+	        ELSE ROUND((t.max_scholarship_score / @max_scholarship_score) * 10, 2)
+	    END;# 影响列数： 3
+
+	-- 5. 删除临时表
+	DROP TEMPORARY TABLE temp_dict_scholarship;# MySQL 返回的查询结果为空(即零行)。
+
+	DROP TEMPORARY TABLE temp_student_scholarship;# MySQL 返回的查询结果为空(即零行)。
+
+
+
+CREATE VIEW BQLHT AS SELECT  (SELECT NAME FROM org_unit WHERE ID=f.field0118) AS '单位', COUNT(*) AS '录入数据', (SELECT COUNT(*)
+FROM formmain_83819 a WHERE field0009 IN (SELECT ID FROM ctp_enum_item WHERE SHOWVALUE in("履行","完结")) AND f.field0118=a.field0118) AS '签订数据',CONCAT(ROUND((SELECT COUNT(*) FROM formmain_83819 a WHERE field0009 IN (SELECT ID FROM ctp_enum_item WHERE SHOWVALUE in("履行","完结")) AND f.field0118=a.field0118)/count(*)*100,2),'%') AS '数据填报完成率'
+FROM formmain_83819 f GROUP BY f.field0118;
+
+CREATE VIEW BQLHTNUM AS
+select (SELECT NAME FROM org_unit WHERE ID=f.field0185) AS '单位', COUNT(*) AS '项目数量'
+from formmain_73770  f
+where field0210 IN (SELECT ID FROM ctp_enum_item WHERE SHOWVALUE in("立项完成","审批完成","待施工","施工中","初验","终验")) and field0266 in (SELECT ID FROM ctp_enum_item WHERE SHOWVALUE in("一级"))
+group by f.field0185
 
 
 

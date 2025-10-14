@@ -65,6 +65,7 @@
         <el-table-column type="selection" width="55" align="center" />
 
         <el-table-column prop="name" label="字典名称" min-width="200" />
+        <el-table-column prop="score" label="分值/权重" width="200" />
         <el-table-column prop="code" label="字典编号" width="200" />
         <el-table-column prop="type" label="字典类别" min-width="200" />
         <el-table-column prop="status" label="状态" width="100">
@@ -130,7 +131,7 @@
             :render-after-expand="false"
           />
         </el-form-item>
-        <el-form-item label="字典类别" prop="name">
+        <el-form-item label="字典类别" prop="type">
           <el-input v-model="formData.type" placeholder="请输入字典类别" />
         </el-form-item>
         <el-form-item label="字典名称" prop="name">
@@ -138,6 +139,14 @@
         </el-form-item>
         <el-form-item label="字典编号" prop="code">
           <el-input v-model="formData.code" placeholder="请输入字典编号" />
+        </el-form-item>
+        <el-form-item label="分值/权重" prop="score">
+          <el-input-number
+            v-model="formData.score"
+            controls-position="right"
+            style="width: 100px"
+            :min="0"
+          />
         </el-form-item>
         <el-form-item label="显示排序" prop="sort">
           <el-input-number
@@ -190,6 +199,7 @@ const deptOptions = ref<OptionType[]>();
 const formData = reactive<DeptForm>({
   status: 1,
   parentId: 0,
+  score: 0,
   sort: 1,
 });
 
@@ -231,7 +241,7 @@ async function handleOpenDialog(parentId?: string, deptId?: string, dicttype?: s
   console.log(parentId);
   console.log(deptId);
   console.log(dicttype);
-  const data = await DeptAPI.getOptions();
+  const data = await DeptAPI.getOptions(dicttype);
   console.log(data);
   deptOptions.value = [
     {

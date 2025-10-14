@@ -15,7 +15,7 @@
             <el-form-item label="关键字" prop="keywords">
               <el-input
                 v-model="queryParams.keywords"
-                placeholder="用户名/昵称/手机号"
+                placeholder="用户名/学号/手机号"
                 clearable
                 @keyup.enter="handleQuery"
               />
@@ -98,14 +98,14 @@
             @selection-change="handleSelectionChange"
           >
             <el-table-column type="selection" width="50" align="center" />
-            <el-table-column label="用户名" prop="username" />
-            <el-table-column label="昵称" width="150" align="center" prop="nickname" />
+            <el-table-column label="姓名" prop="username" />
+            <el-table-column label="学号" width="150" align="center" prop="studentId" />
             <el-table-column label="性别" width="100" align="center">
               <template #default="scope">
-                <DictLabel v-model="scope.row.gender" code="gender" />
+                <DictLabel v-model="scope.row.gender" code="sex" />
               </template>
             </el-table-column>
-            <el-table-column label="部门" width="120" align="center" prop="deptName" />
+            <el-table-column label="专业班级" width="120" align="center" prop="className" />
             <el-table-column label="手机号码" align="center" prop="mobile" width="120" />
             <el-table-column label="邮箱" align="center" prop="email" width="160" />
             <el-table-column label="状态" align="center" prop="status" width="80">
@@ -196,7 +196,7 @@
         </el-form-item>
 
         <el-form-item label="性别" prop="gender">
-          <Dict v-model="formData.gender" code="gender" />
+          <Dict v-model="formData.gender" code="sex" />
         </el-form-item>
 
         <el-form-item label="角色" prop="roleIds">

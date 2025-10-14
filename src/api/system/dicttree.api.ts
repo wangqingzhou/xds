@@ -109,6 +109,7 @@ export interface DeptVO {
   parentid?: string;
   /** 排序 */
   sort?: number;
+  score?: number;
   /** 状态(1:启用；0:禁用) */
   status?: number;
   /** 修改时间 */
@@ -128,6 +129,7 @@ export interface DeptForm {
   parentId: string;
   /** 排序 */
   sort?: number;
+  score?: number;
   /** 状态(1:启用；0：禁用) */
   status?: number;
 }

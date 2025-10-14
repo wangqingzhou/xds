@@ -400,6 +400,14 @@ export interface UserProfileForm {
 
   /** 邮箱 */
   email?: string;
+
+  className: string;
+  studentId: string;
+
+  /** 角色ID集合：适配后端 List<Long>，定义为 number 数组 */
+  roleIds?: number[];
+  /** 用户状态(1:正常;0:禁用) */
+  status?: number;
 }
 
 /** 修改密码表单 */

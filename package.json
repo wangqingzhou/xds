@@ -1,6 +1,6 @@
 {
-  "name": "micrai-cms-admin",
-  "description": "Vue3 + Vite + TypeScript + Element-Plus 的后台管理模板，vue-element-admin 的 Vue3 版本",
+  "name": "优评智审平台",
+  "description": "优评智审平台",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -77,15 +77,17 @@
     "axios": "^1.11.0",
     "codemirror": "^5.65.19",
     "codemirror-editor-vue3": "^2.8.0",
+    "dayjs": "^1.11.18",
     "default-passive-events": "^2.0.0",
     "echarts": "^5.6.0",
-    "element-plus": "^2.10.5",
+    "element-plus": "^2.11.4",
     "exceljs": "^4.4.0",
     "image-compressor.js": "^1.1.4",
     "lodash-es": "^4.17.21",
     "nprogress": "^0.2.0",
     "path-browserify": "^1.0.1",
     "path-to-regexp": "^8.2.0",
+    "pdfjs-dist": "^5.4.149",
     "pinia": "^3.0.3",
     "prosemirror-gapcursor": "^1.3.2",
     "prosemirror-view": "^1.40.1",
@@ -150,6 +152,6 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "repository": "https://gitee.com/hebwkznkjyxgs_admin/micrai-cms-admin.git",
-  "author": "微孔智能",
+  "author": "micrai",
   "license": "MIT"
 }

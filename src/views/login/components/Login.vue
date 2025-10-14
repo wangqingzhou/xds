@@ -14,7 +14,7 @@
       <el-form-item prop="username">
         <el-input
           v-model.trim="loginFormData.username"
-          :placeholder="t('login.username')"
+          placeholder="学号 / 姓名 / 手机号"
           class="custom-input"
         >
           <template #prefix>
@@ -22,7 +22,6 @@
           </template>
         </el-input>
       </el-form-item>
-
       <!-- 密码 -->
       <el-form-item prop="password">
         <el-tooltip :visible="isCapsLock" :content="t('login.capsLock')" placement="right">
@@ -59,7 +58,7 @@
 
       <!-- 登录按钮 -->
       <el-form-item>
-        <el-button :loading="loading" type="primary" class="login-btn" @click="handleLoginSubmit">
+        <el-button type="primary" class="login-btn" @click="handleLoginSubmit">
           <template v-if="!loading">
             <el-icon class="btn-icon"><Right /></el-icon>
             {{ t("login.login") }}
@@ -83,32 +82,6 @@
       >
         {{ t("login.reg") }}
       </el-link>
-    </div>
-
-    <!-- 测试账号提示 -->
-    <div class="test-account">
-      <el-text type="info" size="small">
-        <el-icon><InfoFilled /></el-icon>
-        测试账号：test1 / 111111
-      </el-text>
-    </div>
-
-    <!-- 第三方登录 -->
-    <div class="third-party-login">
-      <div class="divider">
-        <span class="divider-text">或使用其他方式登录</span>
-      </div>
-      <div class="social-buttons">
-        <el-button circle class="social-btn wechat">
-          <el-icon><ChatRound /></el-icon>
-        </el-button>
-        <el-button circle class="social-btn qq">
-          <el-icon><Iphone /></el-icon>
-        </el-button>
-        <el-button circle class="social-btn weibo">
-          <el-icon><Comment /></el-icon>
-        </el-button>
-      </div>
     </div>
   </div>
 </template>
@@ -140,8 +113,8 @@ const isCapsLock = ref(false);
 const rememberMe = Auth.getRememberMe();
 
 const loginFormData = ref<LoginFormData>({
-  username: "test1",
-  password: "111111",
+  username: "",
+  password: "",
   captchaKey: "",
   captchaCode: "",
   rememberMe,
@@ -180,7 +153,39 @@ async function handleLoginSubmit() {
     await userStore.login(loginFormData.value);
     await userStore.getUserInfo();
 
-    const redirectPath = (route.query.redirect as string) || "/";
+    // const redirectPath = (route.query.redirect as string) || "/";
+
+    // 获取用户角色数组
+    const userRoles = userStore.userInfo?.roles || [];
+    console.log("userRoles:", userRoles);
+    // 定义角色标识到首页路径的映射
+    const roleHomePages = {
+      ROLE_ADMIN: "/dashboard",
+      ROLE_POSTGRADUATE: "/materials/welcome",
+      ROLE_STUDENT: "/materials/welcome",
+      // 可以添加更多角色映射
+    };
+
+    // 遍历用户角色，找到第一个匹配的角色并跳转
+    let redirectPath = (route.query.redirect as string) || "/";
+    if (!redirectPath || !redirectPath.startsWith("/")) {
+      redirectPath = "/";
+    }
+
+    // 如果没有重定向路径，则根据角色跳转
+    if (!route.query.redirect) {
+      for (const role of userRoles) {
+        if (roleHomePages[role]) {
+          redirectPath = roleHomePages[role];
+          break;
+        }
+      }
+    }
+
+    // 确保路径安全（防止开放重定向）
+    if (!isValidRedirectPath(redirectPath)) {
+      redirectPath = "/";
+    }
     await router.push(decodeURIComponent(redirectPath));
   } catch (error) {
     console.error("登录失败:", error);
@@ -188,7 +193,11 @@ async function handleLoginSubmit() {
     loading.value = false;
   }
 }
-
+// 辅助函数：验证重定向路径是否安全
+function isValidRedirectPath(path: string): boolean {
+  // 只允许以/开头的路径，不允许包含../等可能用于路径遍历的字符
+  return path.startsWith("/") && !path.includes("..");
+}
 function checkCapsLock(event: KeyboardEvent) {
   if (event instanceof KeyboardEvent) {
     isCapsLock.value = event.getModifierState("CapsLock");

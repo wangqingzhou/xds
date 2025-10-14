@@ -42,9 +42,9 @@
       <!-- 登录页底部版权 -->
       <div class="footer">
         <el-text size="small" class="copyright">
-          Copyright © 2025 micrai.com All Rights Reserved.
+          Copyright © 2025 All Rights Reserved.
           <a href="http://beian.miit.gov.cn/" target="_blank" class="beian-link">
-            黑ICP备17005919号-1
+            黑ICP备17005919号
           </a>
         </el-text>
       </div>
@@ -112,7 +112,7 @@ const formComponents = {
     transition: all 0.3s ease;
 
     &:hover {
-      transform: translateY(-2px);
+      /* 移除 transform 避免按钮移动 */
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
       background: rgba(255, 255, 255, 1);
     }
@@ -149,7 +149,7 @@ const formComponents = {
   transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-4px);
+    /* 移除 transform 避免卡片移动 */
     box-shadow:
       0 25px 50px rgba(0, 0, 0, 0.15),
       0 0 0 1px rgba(255, 255, 255, 0.3);
@@ -176,6 +176,8 @@ const formComponents = {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 12px;
     box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+    /* 确保 logo 不会移动 */
+    transition: none;
   }
 }
 
@@ -187,12 +189,8 @@ const formComponents = {
     font-weight: 700;
     color: #2c3e50; /* 确保在浅色背景下有足够对比度 */
     margin: 0;
-
-    /* 移除渐变文字，使用纯色确保可读性 */
-    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text; */
+    /* 确保标题不会移动 */
+    transition: none;
   }
 
   .badge {
@@ -209,6 +207,8 @@ const formComponents = {
 
 .form-container {
   width: 100%;
+  /* 确保表单容器不会移动 */
+  transition: none;
 }
 
 .footer {
@@ -222,6 +222,8 @@ const formComponents = {
   .copyright {
     color: rgba(255, 255, 255, 0.9); /* 提高对比度 */
     font-weight: 500;
+    /* 确保版权信息不会移动 */
+    transition: none;
   }
 
   .beian-link {

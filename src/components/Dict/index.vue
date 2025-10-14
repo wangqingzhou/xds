@@ -42,6 +42,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch, onMounted } from "vue";
 import { useDictStore } from "@/store";
 
 const dictStore = useDictStore();
@@ -70,16 +71,15 @@ const props = defineProps({
   },
   style: {
     type: Object,
-    default: () => {
-      return {
-        width: "300px",
-      };
-    },
+    default: () => ({
+      width: "300px",
+    }),
   },
 });
 
 const emit = defineEmits(["update:modelValue"]);
 
+// 存储最终用于下拉框的选项（只包含 children）
 const options = ref<Array<{ label: string; value: string | number }>>([]);
 
 const selectedValue = ref<any>(
@@ -90,7 +90,7 @@ const selectedValue = ref<any>(
       : undefined
 );
 
-// 监听 modelValue 和 options 的变化
+// 监听 modelValue 和 options 变化
 watch(
   [() => props.modelValue, () => options.value],
   ([newValue, newOptions]) => {
@@ -101,7 +101,7 @@ watch(
         const matchedOption = newOptions.find(
           (option) => String(option.value) === String(newValue)
         );
-        selectedValue.value = matchedOption?.value;
+        selectedValue.value = matchedOption?.value ?? undefined;
       }
     } else {
       selectedValue.value = undefined;
@@ -110,14 +110,29 @@ watch(
   { immediate: true }
 );
 
-// 监听 selectedValue 的变化并触发 update:modelValue
 function handleChange(val: any) {
   emit("update:modelValue", val);
 }
 
-// 获取字典数据
+// 获取字典数据，并提取 children
 onMounted(async () => {
   await dictStore.loadDictItems(props.code);
-  options.value = dictStore.getDictItems(props.code);
+  const dictData = dictStore.getDictItems(props.code);
+
+  // 关键：提取第一项的 children 作为 options
+  if (dictData && dictData.length > 0 && dictData[0].children) {
+    options.value = dictData[0].children.map((child: any) => ({
+      label: child.label,
+      value: child.value,
+    }));
+  } else {
+    // 如果没有 children，fallback 到原始数据（防止异常）
+    options.value = dictData
+      .map((item: any) => ({
+        label: item.label,
+        value: item.value,
+      }))
+      .filter((item: any) => !item.children); // 排除有 children 的父节点
+  }
 });
 </script>
