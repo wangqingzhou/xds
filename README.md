@@ -1,6 +1,6 @@
 <div align="center">
   <img alt="优评智审平台" width="80" height="80" src="./src/assets/logo.png">
-  <h1>评智审平台</h1>
+  <h1>优评智审平台</h1>
 
 </div>
 
