@@ -171,7 +171,7 @@
 git clone hhttps://github.com/wangqingzhou/xds.git
 
 # 切换目录
-cd vue3-element-admin
+cd micrai-cms-admin
 
 # 安装 pnpm
 npm install pnpm -g
@@ -226,7 +226,7 @@ server {
 Java 后端：基于 Spring Boot，提供用户、权限、字典、审核等完整 RESTful API
 示例 AI 请求体（用于智能体交互）
 
-Python 智能体后端：处理 AI 对话、内容生成与分发逻辑
+```Python 智能体后端：处理 AI 对话、内容生成与分发逻辑
 {
   "chatMessages": [],
   "tools": [
@@ -244,7 +244,7 @@ Python 智能体后端：处理 AI 对话、内容生成与分发逻辑
   }
 }
 
-
+```
 
 Thanks to all the contributors!
 感谢所有的贡献者！
