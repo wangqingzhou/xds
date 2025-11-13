@@ -1,12 +1,8 @@
 <div align="center">
-  <img alt="vue3-element-admin" width="80" height="80" src="./src/assets/logo.png">
-  <h1>micrai-cms-admin</h1>
-
-
+  <img alt="评智审平台" width="80" height="80" src="./src/assets/logo.png">
+  <h1>评智审平台</h1>
 
 </div>
-
-![](https://foruda.gitee.com/images/1708618984641188532/a7cca095_716974.png "rainbow.png")
 
 
 
@@ -14,99 +10,132 @@
 
 ## 项目简介
 
-[micrai-cms-admin](https://gitee.com/hebwkznkjyxgs_admin/micrai-cms-admin.git) 基于 Vue3、Vite7、TypeScript 和 Element-Plus 搭建的极简AI后台管理前端模板，可用于网站后台、智能体后台、协同办公前端。 配套 Java 后端   和 python  智能体后端  。
+# 优评智审- 智能评优量化审核系统
 
-## 项目特色
+> 版本：1.0
+> 更新日期：2025年11月
+> 适用对象：学院审核教师、系统管理员
 
-- **AI功能：**   同时与多个大模型对话中下指令，创作生成文本内容、视频，并分发到头条、抖音、小红书等。
-- **数据交互**： [线上接口文档](http://micrai.com:8045/swagger-ui/index.html)，并提供配套的 [Java]  和 [python]  后端源码。
-- **简洁易用**： Vue3版本的后台管理系统，可用于网站后台，协同办公、智能体后台。
-- **系统功能：** 提供用户管理、角色管理、菜单管理、部门管理、字典管理、系统配置、文章管理 、栏目管理、日志管理等功能模块。
-- **权限管理：** 支持动态路由、按钮权限、角色权限和数据权限等多种权限管理方式。
-- **基础设施：** 提供国际化、多布局、暗黑模式、全屏、水印、接口文档等功能。
-- **持续更新**：项目持续开源更新，实时更新工具和依赖。
+---
+
+## 一、平台简介
+
+**优评智审平台** 是一套基于 AI 辅助的选调生考试资格量化考核审核系统，支持：
+
+- 学生在线提交申请材料
+- 系统自动计算初审分数
+- 教师人工复核与调整
+- 多级权限控制（学院管理员、校级管理员等）
+- 审核日志追溯与数据统计
+
+平台地址：[http://demo.micrai.com/](http://demo.micrai.com/)
+
+---
+
+## 二、登录与账号管理
+
+### 2.1 登录方式
+- 使用 **手机号 + 密码** 登录
+- 支持 PC 浏览器（推荐 Chrome / Edge）或 **微信内置浏览器**
+- 测试账号：`test1` / `111111`
+
+### 2.2 新增学院管理员
+1. 登录后进入【系统管理】→【用户管理】
+2. 点击【新增】
+3. 填写：
+   - **手机号**（必填，作为登录账号）
+   - **用户名**（真实姓名）
+   - **昵称**（可选）
+   - **角色**：选择 “学院管理员”
+4. 默认密码为 `1`，建议首次登录后修改（点击右上角用户名 → 个人中心 → 修改密码）
+
+---
+
+## 三、角色与权限配置
+
+1. 进入【系统管理】→【角色管理】
+2. 选择目标角色（如“学院管理员”）
+3. 点击【权限分配】
+4. 勾选所需菜单权限（如：学院审核、字典管理、用户管理等）
+5. 点击【保存】
+
+> ⚠️ 权限变更实时生效，请谨慎操作。
+
+---
+
+## 四、考核指标（字典）管理
+
+### 4.1 查看/修改指标分值
+1. 进入【系统管理】→【字典管理】
+2. 找到对应三级指标（如“科研成果-论文-核心期刊”）
+3. 点击【编辑】，修改分值
+4. 点击【确定】保存
+
+### 4.2 新增考核项
+- 支持在树形结构中新增指标
+- **重要规则**：二级指标与其子项必须属于同一“字典类别”
+
+---
+
+## 五、学院审核流程
+
+### 5.1 进入待审核列表
+- 菜单路径：【学院审核】→【待审核】
+- 可按“本科生”或“研究生”筛选
+
+### 5.2 审核步骤
+1. **查看申请**：点击【查看审核】，查看学生上传的证明材料（图片/PDF）
+2. **自动评分**：点击【计算全部申请记录得分】，系统自动打分
+3. **人工调整**：如需修正，直接修改“审核分数”字段
+4. **填写意见**：
+   - 在“符合申报条件”下拉框选择 **是 / 否**
+   - 输入详细审核意见（如：“竞赛获奖未提供盖章证明”）
+5. **提交结果**：点击【完成审核】
+6. **特殊情况处理**：
+   - **退回**：材料不全时点击【退回】，学生可重新提交
+   - **删除**：仅用于无效或测试数据
+
+---
+
+## 六、数据查询与统计
+
+- 路径：【学院审核】→【全部记录】
+- 支持按学历筛选、多字段排序
+- 点击【查看日志】可追溯完整审核历史（谁在何时做了什么操作）
+
+---
+
+## 七、注意事项
+
+### 7.1 审核规范
+- 分数必须客观、有据可依
+- 审核意见应具体明确，避免“材料不全”等模糊表述
+
+### 7.2 数据安全
+- 勿泄露账号密码
+- 审核完毕及时退出系统
+- 建议定期修改密码
+
+### 7.3 技术建议
+- 推荐使用 **Chrome / Edge / 微信浏览器**
+- 如遇系统异常，请联系技术支持
+
+---
+
+## 八、技术支持
+
+- 平台由 **Micrai 智能体团队** 开发维护
+- 问题反馈请添加微信：`cwebcrm`（备注“优评智审-学院名称”）
+- 或联系系统管理员
+
+---
+
+> © 2025 优评智审平台 | 基于 [micrai-cms-admin](hhttps://github.com/wangqingzhou/xds) 构建
+> 特别感谢 [GitCode G-Star 计划](https://gitcode.com/g-star) 认证支持
 
 
 
 
-
-关于“AI辅导员”项目
-一、 作品创意阐述
-“AI辅导员”是一款深度融合了人工智能技术的智慧教育平台。其核心创意在于将传统的学生信息管理系统与前沿的大语言模型（LLM）能力相结合，打造一个不仅限于信息记录，更具备“思考”和“辅导”能力的数字助手。
-
-核心创意点如下：
-
-从“记录”到“赋能”的转变：
-
-传统系统：仅作为学生数据（班级、学号、成绩）的“档案库”，功能是静态和被动的。
-
-AI辅导员：在数据基础之上，内置一个AI大脑。它不仅能存储信息，更能分析、理解并主动生成内容。例如，自动生成学生学习报告、识别学习困难群体、为教师提供个性化教学建议等。
-
-个性化交互与支持：
-
-通过自然语言处理（NLP）技术，系统可以提供7x24小时的智能问答支持。学生可以像与真人辅导员一样，用自然语言询问关于课程、作业、校园政策等问题，获得即时、准确的回答，极大减轻了人工辅导员重复性咨询的压力。
-
-数据驱动的精准洞察：
-
-系统不再是数据的坟墓，而是数据的“金矿”。通过分析学生的学习行为、成绩趋势、互动数据等，AI可以提前预警潜在学业风险的学生，并帮助教育管理者发现教学过程中的共性问题和优化点，实现从“经验驱动”到“数据驱动”的决策转变。
-
-智能化工作流自动化：
-
-将AI能力嵌入到具体工作流程中，如智能批改客观题、自动生成班级通知、辅助完成教务报告等，将教师和行政人员从繁琐的事务性工作中解放出来，使其能更专注于教学本身和与学生的深度交流。
-
-简而言之，我们的创意不是做一个更好的“管理系统”，而是创造一个能够参与教学管理过程、提供智能支持的“AI同事”。
-
-二、 面向的目标用户
-我们的产品主要服务于教育生态中的三类核心用户：
-
-核心用户：学生
-
-需求：便捷的课程查询、成绩查看、即时的问题解答、个性化的学习反馈、与同学和老师的互动。
-
-痛点：遇到问题时找不到老师；不清楚自己的学习状况；对冰冷的系统界面无感。
-
-价值：获得一个随时随地、有问必答、且了解自己学习历史的“个人学业助手”，学习体验更流畅、更贴心。
-
-关键用户：教师与辅导员
-
-需求：高效管理班级和学生信息；轻松发布通知和作业；快速了解班级整体学情；与学生有效沟通。
-
-痛点：大量时间被琐碎的行政事务和重复性问题占用；难以全面掌握每个学生的动态；缺乏高效的数据分析工具。
-
-价值：AI成为其“教学助理”，自动化处理常规事务，并提供数据洞察，让其能更专注于教学设计、科研和与学生的深度辅导。
-
-重要客户：学校及教育机构管理者
-
-需求：掌控整体教学运行质量；优化资源配置；提升管理效率和现代化水平；做出科学决策。
-
-痛点：数据分散，形成信息孤岛；决策依赖主观经验，缺乏数据支撑；难以量化评估教学效果。
-
-价值：获得一个智慧教育决策支持系统，通过数据驾驶舱一目了然地看清全局，发现规律，预测趋势，从而实现更科学、精准的管理。
-
-三、 市场的简单分析
-市场趋势与机遇：
-
-政策东风：“人工智能+教育”等政策，为教育数字化转型提供了强大的支持和明确的方向。
-
-技术成熟：大语言模型技术的普及和API成本的下降，使得AI能力可以低成本、高效率地集成到传统应用中，技术门槛显著降低。
-
-需求旺盛：线上线下融合（OMO）教学模式成为常态，学校对数字化工具的需求从“有”到“优”，从“工具”到“智慧”转变，市场存在巨大的升级替换空间。
-
-竞争格局：
-
-传统巨头：它们优势在于深耕多年，客户关系稳固，产品线齐全。但其产品往往传统、笨重、创新缓慢，AI能力通常是外挂而非内核。
-
-新兴AI公司：一些初创公司提供纯AI解题、虚拟人等工具，技术新颖，但缺乏与校园实际管理和工作流深度结合的场景，容易沦为“玩具”。
-
-我们的定位：我们恰好处于两者的结合点——既懂教育业务场景，又具备现代AI产品能力。做一个轻量化、AI原生、体验极致的智慧辅导平台，专注于解决“管理”和“辅导”中的核心痛点。
-
-市场挑战：
-
-用户习惯：改变教师和行政人员长期形成的使用习惯需要时间和有效的培训。
-
-数据安全与隐私：教育数据极其敏感，必须建立最高等级的安全防护和隐私保护机制，符合《网络安全法》、《数据安全法》等要求。
-
-销售周期：教育行业，特别是高校的采购决策流程长，需要深厚的渠道资源和耐心。
 
 
 ## 项目截图
@@ -116,6 +145,10 @@ AI辅导员：在数据基础之上，内置一个AI大脑。它不仅能存储�
   <img src="./src/assets/1.png"/>
   <img src="./src/assets/2.png"/>
   <img src="./src/assets/3.png"/>
+  <img src="./src/assets/4.png"/>
+  <img src="./src/assets/5.png"/>
+  <img src="./src/assets/6.png"/>
+  <img src="./src/assets/7.png"/>
   <img src="./src/assets/ai.png"/>
 
 
@@ -135,7 +168,7 @@ AI辅导员：在数据基础之上，内置一个AI大脑。它不仅能存储�
 
 ```bash
 # 克隆代码
-git clone https://gitee.com/hebwkznkjyxgs_admin/micrai-cms-admin.git
+git clone hhttps://github.com/wangqingzhou/xds.git
 
 # 切换目录
 cd vue3-element-admin
@@ -189,66 +222,27 @@ server {
 
 > Java后台，按照以下步骤将在线接口转为本地后端接口，创建企业级前后端分离开发环境，助您走向全栈之路。
 
-1. 获取基于 `Java` 和 `SpringBoot` 开发的后端  源码。
-2. 根据后端工程的说明文档 [README.md]  完成本地启动。
-3. # 线上  .env.production 中的  VITE_APP_API_URL = ''  # 关键修改：留空后，请求会自动使用当前页面的域名（如 demo.micrai.com）
-4.json 示例：
+线上接口文档：http://micrai.com:8045/swagger-ui/index.html
+Java 后端：基于 Spring Boot，提供用户、权限、字典、审核等完整 RESTful API
+示例 AI 请求体（用于智能体交互）
+
+Python 智能体后端：处理 AI 对话、内容生成与分发逻辑
 {
-    "chatMessages": [],
-    "tools": [
-        "read_first_chunk",
-        "read_next_chunk",
-        "read_previous_chunk",
-        "ask_user",
-        "finish_with_summary",
-        "plan",
-        "replace_document",
-        "apply_diff"
+  "chatMessages": [],
+  "tools": [
+    "read_first_chunk",
+    "ask_user",
+    "finish_with_summary",
+    "plan"
+  ],
+  "modelName": "gpt-4.1",
+  "schemaAwarenessData": {
+    "extensionNames": [
+      "bold", "italic", "heading", "bulletList", "aiAgent", "tiptapAiAgentBlockSelection"
     ],
-    "modelName": "gpt-4.1",
-    "schemaAwarenessData": {
-        "extensionNames": [
-            "link",
-            "paragraph",
-            "editable",
-            "clipboardTextSerializer",
-            "commands",
-            "focusEvents",
-            "keymap",
-            "tabindex",
-            "drop",
-            "paste",
-            "delete",
-            "starterKit",
-            "bold",
-            "blockquote",
-            "bulletList",
-            "code",
-            "codeBlock",
-            "doc",
-            "dropCursor",
-            "gapCursor",
-            "hardBreak",
-            "heading",
-            "undoRedo",
-            "horizontalRule",
-            "italic",
-            "listItem",
-            "listKeymap",
-            "orderedList",
-            "strike",
-            "text",
-            "underline",
-            "trailingNode",
-            "aiAgent",
-            "tiptapAiAgentInlineSelection",
-            "tiptapAiAgentBlockSelection"
-        ],
-        "customNodes": []
-    }
+    "customNodes": []
+  }
 }
-
-
 
 
 
@@ -270,155 +264,9 @@ Thanks to all the contributors!
 
 
 ## 加群交流
-[] <img alt="微智能体全栈交流群" width="280"  src="./src/assets/wx.jpg">
+[] <img alt="微智能体优评智审群" width="280"  src="./src/assets/wx.jpg">
 
-② 直接添加微信 **`cwebcrm`** 备注「前端/后端/全栈」。
-
-
-
-
-
-
-
-
-
-
-
--- 选调生材料申请表
-CREATE TABLE `material_application` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `student_id` varchar(50) NOT NULL COMMENT '学号',
-  `student_name` varchar(50) NOT NULL COMMENT '姓名',
-  `school` varchar(100) NOT NULL COMMENT '毕业院校',
-  `major` varchar(100) NOT NULL COMMENT '专业',
-  `education` varchar(20) NOT NULL COMMENT '最高学历',
-  `graduation_date` date NOT NULL COMMENT '毕业日期',
-  `political_status` varchar(20) NOT NULL COMMENT '政治面貌',
-  `party_proof_file_ids` varchar(500) DEFAULT NULL COMMENT '党员证明文件ID列表',
-  `party_valid` varchar(10) DEFAULT NULL COMMENT '党员证明真实性确认',
-  `cadre_experience` varchar(20) DEFAULT NULL COMMENT '学生干部经历',
-  `cadre_position` varchar(100) DEFAULT NULL COMMENT '具体职务',
-  `cadre_proof_file_id` varchar(50) DEFAULT NULL COMMENT '学生干部证明文件ID',
-  `cadre_valid` varchar(10) DEFAULT NULL COMMENT '学生干部证明真实性确认',
-  `military_experience` varchar(10) DEFAULT NULL COMMENT '参军入伍经历',
-  `military_proof_file_id` varchar(50) DEFAULT NULL COMMENT '入伍证明文件ID',
-  `military_valid` varchar(10) DEFAULT NULL COMMENT '入伍证明真实性确认',
-  `award_level` varchar(20) DEFAULT NULL COMMENT '获奖级别',
-  `award_name` varchar(200) DEFAULT NULL COMMENT '获奖名称',
-  `awards_proof_file_ids` varchar(500) DEFAULT NULL COMMENT '获奖证书文件ID列表',
-  `award_valid` varchar(10) DEFAULT NULL COMMENT '获奖证书真实性确认',
-  `ranking_level` varchar(20) NOT NULL COMMENT '专业排名区间',
-  `failed_courses` varchar(20) NOT NULL COMMENT '不及格课程',
-  `transcript_file_id` varchar(50) NOT NULL COMMENT '成绩单文件ID',
-  `transcript_valid` varchar(10) NOT NULL COMMENT '成绩单真实性确认',
-  `rank_proof_file_id` varchar(50) NOT NULL COMMENT '专业排名证明文件ID',
-  `rank_valid` varchar(10) NOT NULL COMMENT '排名证明真实性确认',
-  `id_card_file_id` varchar(50) NOT NULL COMMENT '身份证文件ID',
-  `id_valid` varchar(10) NOT NULL COMMENT '身份证真实性确认',
-  `overall_valid` varchar(10) NOT NULL COMMENT '总体声明确认',
-  `score` decimal(5,2) DEFAULT NULL COMMENT '计算得分',
-  `status` varchar(20) DEFAULT 'draft' COMMENT '状态（draft：草稿，submitted：已提交）',
-  `create_by` varchar(64) DEFAULT NULL COMMENT '创建者',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_by` varchar(64) DEFAULT NULL COMMENT '更新者',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_student_id` (`student_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='选调生材料申请表';
-
-
-
-
-“信小艾”AI辅导员项目由哈尔滨微孔智能科技有限公司开发，旨在通过基于大语言模型（LLM）和知识库驱动的智能助手平台，辅助高校辅导员进行学生管理。该系统采用模块化、分层式架构设计，具备核心业务逻辑处理、智能推理与语义理解、数据存储与管理等功能。系统支持多租户架构，适用于不同高校或院系独立部署。核心目标包括减轻辅导员工作负担、提供7×24小时在线咨询服务、实现智能响应等。通过集成多种关键技术，如知识库处理、安全与合规机制等，系统确保了高可用性、强安全性和易配置性。
-
-
-“信小艾”AI辅导员项目的创新功能点包括：
-1. 知识增强型生成（RAG）：结合大语言模型和知识库，避免回答错误。
-2. 多场景智能响应：实现政策解读、学业指导、心理支持等智能响应。
-3. 全天候在线咨询：提供7×24小时在线服务，减轻辅导员负担。
-4. 精细化模型配置：管理员可对AI助手进行详细配置，包括模型选择、提示词设计等。
-5. 心理边界控制：心理类模型中加入“非医疗建议”声明，识别高风险对话并预警。
-6. 多租户架构：支持不同高校或院系独立部署，确保数据隔离。
-7. 可扩展性设计：支持模型更新和第三方系统对接，多语言支持。
-8. 日志审计与数据隔离：记录所有对话和操作。
-
-
-        审核状态	17
-		草稿	DRAFT
-		已提交	SUBMITTED
-		已退回	RETURNED
-		已审核	APPROVED
-
-
-	-- 计算学业成绩学院审核分（20分）
-	UPDATE material_form mf
-	JOIN (
-	    SELECT MAX(gpa_score) AS max_gpa
-	    FROM material_form
-	    WHERE gpa_score IS NOT NULL
-	) AS max_gpa ON 1=1
-	SET mf.college_score_academic =
-	    CASE
-	        WHEN max_gpa.max_gpa = 0 THEN 0
-	        ELSE ROUND((mf.gpa_score / max_gpa.max_gpa) * 20, 2)
-	    END
-	WHERE mf.gpa_score IS NOT NULL;
-
-
-
-	-- 计算学业奖励学院审核分（10分）
-	-- 1. 创建临时表存储字典数据
-	CREATE TEMPORARY TABLE temp_dict_scholarship AS
-	SELECT
-	    id,
-	    name,
-	    score
-	FROM sys_dicttree
-	WHERE type = 'scholarship' AND id IN (38, 39, 40, 41)
-	ORDER BY score DESC;# 影响列数： 4
-  -- 按分值降序排列，确保取最高分
-	-- 2. 创建临时表存储每个学生的奖学金最高分
-	CREATE TEMPORARY TABLE temp_student_scholarship AS
-	SELECT
-	    mf.id,
-	    mf.student_name,
-	    mf.scholarship,
-	    -- 获取学生奖学金的最高分：先去掉方括号，然后按逗号分割，再匹配字典
-	    (
-	        SELECT MAX(ds.score)
-	        FROM temp_dict_scholarship ds
-	        WHERE FIND_IN_SET(ds.id, REPLACE(REPLACE(mf.scholarship, '[', ''), ']', '')) > 0
-	    ) AS max_scholarship_score
-	FROM material_form mf;# 影响列数： 3
-
-	-- 3. 计算整个表的最高分
-	SET @max_scholarship_score = (SELECT MAX(max_scholarship_score) FROM temp_student_scholarship);# MySQL 返回的查询结果为空(即零行)。
-
-	-- 4. 更新原表中的学业奖励学院审核分
-	UPDATE material_form mf
-	JOIN temp_student_scholarship t ON mf.id = t.id
-	SET mf.college_score_scholarship =
-	    CASE
-	        WHEN t.max_scholarship_score IS NULL OR @max_scholarship_score = 0 THEN 0
-	        ELSE ROUND((t.max_scholarship_score / @max_scholarship_score) * 10, 2)
-	    END;# 影响列数： 3
-
-	-- 5. 删除临时表
-	DROP TEMPORARY TABLE temp_dict_scholarship;# MySQL 返回的查询结果为空(即零行)。
-
-	DROP TEMPORARY TABLE temp_student_scholarship;# MySQL 返回的查询结果为空(即零行)。
-
-
-
-CREATE VIEW BQLHT AS SELECT  (SELECT NAME FROM org_unit WHERE ID=f.field0118) AS '单位', COUNT(*) AS '录入数据', (SELECT COUNT(*)
-FROM formmain_83819 a WHERE field0009 IN (SELECT ID FROM ctp_enum_item WHERE SHOWVALUE in("履行","完结")) AND f.field0118=a.field0118) AS '签订数据',CONCAT(ROUND((SELECT COUNT(*) FROM formmain_83819 a WHERE field0009 IN (SELECT ID FROM ctp_enum_item WHERE SHOWVALUE in("履行","完结")) AND f.field0118=a.field0118)/count(*)*100,2),'%') AS '数据填报完成率'
-FROM formmain_83819 f GROUP BY f.field0118;
-
-CREATE VIEW BQLHTNUM AS
-select (SELECT NAME FROM org_unit WHERE ID=f.field0185) AS '单位', COUNT(*) AS '项目数量'
-from formmain_73770  f
-where field0210 IN (SELECT ID FROM ctp_enum_item WHERE SHOWVALUE in("立项完成","审批完成","待施工","施工中","初验","终验")) and field0266 in (SELECT ID FROM ctp_enum_item WHERE SHOWVALUE in("一级"))
-group by f.field0185
+② 直接添加微信 **`cwebcrm`** 备注「优评智审」。
 
 
 

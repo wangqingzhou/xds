@@ -97,6 +97,16 @@ export const constantRoutes: RouteRecordRaw[] = [
         props: true,
       },
       {
+        path: "materialsyjs/edit/:id",
+        name: "Materialsedityjs",
+        component: () => import("@/views/system/materials/indexyjs.vue"),
+        meta: {
+          title: "编辑申请研究生",
+          hidden: true,
+        },
+        props: true,
+      },
+      {
         path: "materials/view/:id",
         name: "Materialsview",
         component: () => import("@/views/system/materials/components/AuditDetailDialog.vue"),

@@ -49,6 +49,18 @@
                 </template>
               </el-input>
             </el-form-item>
+            <el-form-item label="学历" prop="education">
+              <el-select
+                v-model="queryParams.education"
+                placeholder="全部学历"
+                clearable
+                style="width: 120px"
+                class="search-select"
+              >
+                <el-option label="本科生" value="本科生" />
+                <el-option label="研究生" value="研究生" />
+              </el-select>
+            </el-form-item>
 
             <el-form-item label="状态" prop="status">
               <el-select
@@ -91,6 +103,7 @@
           <div class="data-table__toolbar">
             <div class="data-table__toolbar--actions">
               <el-button
+                v-if="false"
                 v-hasPerm="['material:batchApprove']"
                 type="success"
                 :disabled="selectIds.length === 0"
@@ -99,6 +112,16 @@
                 @click="handleBatchApprove"
               >
                 批量审核
+              </el-button>
+              <el-button
+                v-hasPerm="['material:return']"
+                type="warning"
+                :disabled="selectIds.length === 0"
+                icon="close"
+                class="batch-return-btn"
+                @click="handleBatchReturn"
+              >
+                批量退回
               </el-button>
             </div>
           </div>
@@ -116,11 +139,19 @@
           >
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column type="index" label="序号" width="60" />
-            <el-table-column label="学号" prop="studentId" width="120" />
-            <el-table-column label="姓名" prop="studentName" width="100" />
-            <el-table-column label="专业班级" prop="majorClass" min-width="150" />
+            <el-table-column label="ID" prop="id" width="100" sortable="custom" />
+            <el-table-column label="学历" prop="education" width="100" sortable="custom" />
+            <el-table-column label="学号" prop="studentId" width="120" sortable="custom" />
+            <el-table-column label="姓名" prop="studentName" width="100" sortable="custom" />
+            <el-table-column label="专业班级" prop="majorClass" min-width="150" sortable="custom" />
 
-            <el-table-column align="center" label="是否符合申报条件" width="150">
+            <el-table-column
+              align="center"
+              label="是否符合"
+              prop="qualify"
+              width="150"
+              sortable="custom"
+            >
               <template #default="scope">
                 <DictLabel v-model="scope.row.qualify" code="yesno" />
               </template>
@@ -151,7 +182,13 @@
               </template>
             </el-table-column>
 
-            <el-table-column align="center" label="状态" width="150">
+            <el-table-column
+              align="center"
+              label="状态"
+              prop="status"
+              width="150"
+              sortable="custom"
+            >
               <template #default="scope">
                 <el-tag v-if="scope.row.statusText == '已审核'" type="success" size="small">
                   已审核
@@ -162,7 +199,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column label="创建时间" width="230">
+            <el-table-column label="创建时间" prop="submit_time" width="230" sortable="custom">
               <template #default="scope">
                 <div class="time-display-container">
                   <div class="time-item">
@@ -178,78 +215,109 @@
                 </div>
               </template>
             </el-table-column>
-            <el-table-column align="center" fixed="right" label="操作" width="320">
+
+            <!-- 适配手机端的操作列 - 移除了 fixed 属性 -->
+            <el-table-column
+              align="center"
+              label="操作"
+              :width="getOperationColumnWidth"
+              class-name="operation-column"
+              :min-width="isMobile ? 100 : 200"
+            >
               <template #default="scope">
-                <el-button
-                  type="primary"
-                  size="small"
-                  link
-                  class="action-btn"
-                  @click="openAuditDialog(scope.row.id)"
-                >
-                  <el-icon><View /></el-icon>
-                  查看日志
-                </el-button>
-                <router-link :to="'/materials/edit/' + scope.row.id">
-                  <el-button
-                    v-hasPerm="['material:add']"
-                    type="primary"
-                    size="small"
-                    icon="Edit"
-                    class="action-btn"
-                  >
-                    编辑
-                  </el-button>
-                </router-link>
-                <router-link :to="'/materials/edit/' + scope.row.id">
-                  <el-button
-                    v-hasPerm="['material:approve']"
-                    type="primary"
-                    size="small"
-                    icon="Edit"
-                    class="action-btn"
-                  >
-                    查看审核
-                  </el-button>
-                </router-link>
-                <el-button
-                  v-if="scope.row.status === 'SUBMITTED'"
-                  v-hasPerm="['material:approve']"
-                  type="success"
-                  size="small"
-                  link
-                  class="action-btn"
-                  @click="handleApprove(scope.row.id)"
-                >
-                  <el-icon><Check /></el-icon>
-                  审核
-                </el-button>
+                <div class="operation-buttons">
+                  <!-- 查看日志按钮 -->
+                  <el-tooltip content="查看日志" placement="top" :disabled="!isMobile">
+                    <el-button
+                      type="primary"
+                      size="small"
+                      link
+                      class="action-btn"
+                      @click="openAuditDialog(scope.row.id)"
+                    >
+                      <el-icon><View /></el-icon>
+                      <span v-show="!isMobile" class="button-text">查看日志</span>
+                    </el-button>
+                  </el-tooltip>
 
-                <el-button
-                  v-if="scope.row.status === 'SUBMITTED' || scope.row.status == 'APPROVED'"
-                  v-hasPerm="['material:return']"
-                  type="warning"
-                  size="small"
-                  link
-                  class="action-btn"
-                  @click="handleReturn(scope.row.id)"
-                >
-                  <el-icon><Close /></el-icon>
-                  退回
-                </el-button>
+                  <!-- 编辑/查看按钮 -->
+                  <el-tooltip
+                    :content="scope.row.statusText === '已提交' ? '查看' : '编辑'"
+                    placement="top"
+                    :disabled="!isMobile"
+                  >
+                    <router-link :to="getEditRoute(scope.row)">
+                      <el-button
+                        v-hasPerm="['material:add']"
+                        type="primary"
+                        size="small"
+                        link
+                        class="action-btn"
+                      >
+                        <el-icon><Edit /></el-icon>
+                        <span v-show="!isMobile" class="button-text">
+                          {{ scope.row.statusText === "已提交" ? "查看" : "编辑" }}
+                        </span>
+                      </el-button>
+                    </router-link>
+                  </el-tooltip>
 
-                <el-button
-                  v-if="scope.row.status !== 'APPROVED'"
-                  v-hasPerm="['material:delete']"
-                  type="danger"
-                  size="small"
-                  link
-                  class="action-btn"
-                  @click="handleDelete(scope.row.id)"
-                >
-                  <el-icon><Delete /></el-icon>
-                  删除
-                </el-button>
+                  <!-- 查看审核按钮 -->
+                  <el-tooltip content="查看审核" placement="top" :disabled="!isMobile">
+                    <router-link :to="getEditRoute(scope.row)">
+                      <el-button
+                        v-hasPerm="['material:approve']"
+                        type="primary"
+                        size="small"
+                        link
+                        class="action-btn"
+                      >
+                        <el-icon><Search /></el-icon>
+                        <span v-show="!isMobile" class="button-text">查看审核</span>
+                      </el-button>
+                    </router-link>
+                  </el-tooltip>
+
+                  <!-- 退回按钮 -->
+                  <el-tooltip
+                    v-if="scope.row.status === 'SUBMITTED' || scope.row.status == 'APPROVED'"
+                    content="退回"
+                    placement="top"
+                    :disabled="!isMobile"
+                  >
+                    <el-button
+                      v-hasPerm="['material:return']"
+                      type="warning"
+                      size="small"
+                      link
+                      class="action-btn"
+                      @click="handleReturn(scope.row.id)"
+                    >
+                      <el-icon><Close /></el-icon>
+                      <span v-show="!isMobile" class="button-text">退回</span>
+                    </el-button>
+                  </el-tooltip>
+
+                  <!-- 删除按钮 -->
+                  <el-tooltip
+                    v-if="scope.row.status !== 'APPROVED'"
+                    content="删除"
+                    placement="top"
+                    :disabled="!isMobile"
+                  >
+                    <el-button
+                      v-hasPerm="['material:delete']"
+                      type="danger"
+                      size="small"
+                      link
+                      class="action-btn"
+                      @click="handleDelete(scope.row.id)"
+                    >
+                      <el-icon><Delete /></el-icon>
+                      <span v-show="!isMobile" class="button-text">删除</span>
+                    </el-button>
+                  </el-tooltip>
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -367,7 +435,7 @@
       @success="handleAuditSuccess"
     />
 
-    <!-- 审核对话框 -->
+    <!-- 审核/退回对话框 -->
     <el-dialog
       v-model="approveDialog.visible"
       :title="approveDialog.title"
@@ -375,20 +443,24 @@
       append-to-body
       class="approve-dialog"
     >
-      <el-form ref="approveFormRef" :model="approveForm" label-width="80px">
-        <el-form-item label="是否符合" prop="qualify">
+      <el-form ref="approveFormRef" :model="approveForm" :rules="approveRules" label-width="80px">
+        <el-form-item label="是否符合" prop="qualify" required>
           <Dict v-model="approveForm.qualify" code="yesno" class="mobile-input">
             <template #prefix>
               <el-icon class="input-icon"><Check /></el-icon>
             </template>
           </Dict>
         </el-form-item>
-        <el-form-item label="审核意见" prop="remark">
+        <el-form-item
+          :label="approveDialog.type === 'approve' ? '意见' : '意见'"
+          prop="remark"
+          required
+        >
           <el-input
             v-model="approveForm.remark"
             type="textarea"
             :rows="3"
-            placeholder="请输入审核意见"
+            :placeholder="approveDialog.type === 'approve' ? '请输入审核意见' : '请输入退回意见'"
             class="remark-input"
           />
         </el-form-item>
@@ -401,28 +473,39 @@
       </template>
     </el-dialog>
 
-    <!-- 批量审核对话框 -->
+    <!-- 批量审核/退回对话框 -->
     <el-dialog
       v-model="batchApproveDialog.visible"
-      title="批量审核"
+      :title="batchApproveDialog.title"
       width="500px"
       append-to-body
       class="batch-approve-dialog"
     >
-      <el-form ref="batchApproveFormRef" :model="batchApproveForm" label-width="80px">
-        <el-form-item label="是否符合" prop="qualify">
+      <el-form
+        ref="batchApproveFormRef"
+        :model="batchApproveForm"
+        :rules="batchApproveRules"
+        label-width="80px"
+      >
+        <el-form-item label="是否符合" prop="qualify" required>
           <Dict v-model="batchApproveForm.qualify" code="yesno" class="mobile-input">
             <template #prefix>
               <el-icon class="input-icon"><Check /></el-icon>
             </template>
           </Dict>
         </el-form-item>
-        <el-form-item label="审核意见" prop="remark">
+        <el-form-item
+          :label="batchApproveDialog.type === 'approve' ? '意见' : '意见'"
+          prop="remark"
+          required
+        >
           <el-input
             v-model="batchApproveForm.remark"
             type="textarea"
             :rows="3"
-            placeholder="请输入审核意见"
+            :placeholder="
+              batchApproveDialog.type === 'approve' ? '请输入审核意见' : '请输入退回意见'
+            "
             class="remark-input"
           />
         </el-form-item>
@@ -438,10 +521,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, computed, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage, ElMessageBox } from "element-plus";
-//import { Menu, Close, Search, Office, View, Edit, Check, Delete } from "@element-plus/icons-vue";
+import type { FormRules, FormInstance } from "element-plus";
 import { useAppStore } from "@/store/modules/app.store";
 import { DeviceEnum } from "@/enums/settings/device.enum";
 import MaterialAPI, {
@@ -488,8 +571,8 @@ const appStore = useAppStore();
 const router = useRouter();
 
 const queryFormRef = ref();
-const approveFormRef = ref();
-const batchApproveFormRef = ref();
+const approveFormRef = ref<FormInstance>();
+const batchApproveFormRef = ref<FormInstance>();
 const deptTreeRef = ref();
 
 const queryParams = reactive<MaterialPageQuery>({
@@ -498,6 +581,7 @@ const queryParams = reactive<MaterialPageQuery>({
   sort: "score", // 默认按分数排序
   order: "descending", // 默认降序
   status: "", // 状态参数，初始为空
+  education: "", // 学历参数，初始为空
 });
 
 // 申请表格数据
@@ -526,17 +610,47 @@ const approveDialog = reactive({
   id: 0,
 });
 const approveForm = reactive({
+  qualify: 0,
   remark: "",
 });
+const approveRules: FormRules = {
+  qualify: [{ required: true, message: "请选择是否符合", trigger: "change" }],
+  remark: [
+    { required: true, message: "请输入意见", trigger: "blur" },
+    { min: 1, max: 500, message: "意见长度在 1 到 500 个字符", trigger: "blur" },
+  ],
+};
 
 // 批量审核弹窗
 const batchApproveDialog = reactive({
   visible: false,
+  title: "",
+  type: "", // approve 或 return
 });
 const batchApproveForm = reactive({
   qualify: 0,
   remark: "",
 });
+const batchApproveRules: FormRules = {
+  qualify: [{ required: true, message: "请选择是否符合", trigger: "change" }],
+  remark: [
+    { required: true, message: "请输入意见", trigger: "blur" },
+    { min: 1, max: 500, message: "意见长度在 1 到 500 个字符", trigger: "blur" },
+  ],
+};
+
+// 响应式计算属性
+const isMobile = computed(() => appStore.device === DeviceEnum.Mobile);
+
+// 获取操作列宽度
+const getOperationColumnWidth = computed(() => {
+  return isMobile.value ? 100 : 280;
+});
+
+// 获取编辑路由
+function getEditRoute(row: any) {
+  return row.education === "研究生" ? "/materialsyjs/edit/" + row.id : "/materials/edit/" + row.id;
+}
 
 // 获取组织机构树
 async function getDeptTree() {
@@ -566,7 +680,8 @@ function handleQuery() {
   queryParams.pageNum = 1;
   fetchData();
 }
-// 5. 同步路由参数到查询条件的核心方法
+
+// 同步路由参数到查询条件的核心方法
 const syncRouteStatusToQuery = () => {
   // 路由数据容错判断
   if (!router || !router.currentRoute || !router.currentRoute.value) {
@@ -585,12 +700,14 @@ const syncRouteStatusToQuery = () => {
     handleQuery();
   } else handleQuery();
 };
+
 // 重置查询
 function handleResetQuery() {
   queryFormRef.value.resetFields();
   queryParams.pageNum = 1;
   queryParams.deptId = undefined;
   queryParams.status = undefined;
+  queryParams.education = undefined; // 重置学历筛选
   queryParams.createTime = undefined;
   queryParams.sort = "score"; // 重置为默认排序
   queryParams.order = "descending"; // 重置为默认排序
@@ -614,7 +731,19 @@ function handleDeptNodeClick(data: any) {
 
 // 处理表格排序变化
 function handleSortChange({ prop, order }: { prop: string; order: string }) {
-  queryParams.sort = prop;
+  // 字段映射表 - 前端显示字段名 : 数据库字段名
+  const fieldMapping: { [key: string]: string } = {
+    studentId: "student_Id",
+    studentName: "student_name",
+    majorClass: "major_class",
+    createTime: "create_time",
+    updateTime: "update_time",
+  };
+
+  // 获取数据库字段名，如果没有映射就使用原字段名
+  const dbField = fieldMapping[prop] || prop;
+
+  queryParams.sort = dbField;
   queryParams.order = order === "ascending" ? "asc" : order === "descending" ? "desc" : "";
   handleQuery();
 }
@@ -634,6 +763,7 @@ function handleApprove(id: number) {
   approveDialog.title = "审核";
   approveDialog.type = "approve";
   approveDialog.id = id;
+  approveForm.qualify = 0;
   approveForm.remark = "";
   approveDialog.visible = true;
 }
@@ -643,40 +773,9 @@ function handleReturn(id: number) {
   approveDialog.title = "退回申请";
   approveDialog.type = "return";
   approveDialog.id = id;
+  approveForm.qualify = 0;
   approveForm.remark = "";
   approveDialog.visible = true;
-}
-
-// 提交审核
-function submitApprove() {
-  if (!approveForm.remark.trim()) {
-    ElMessage.warning("请输入审核意见");
-    return;
-  }
-
-  if (approveDialog.type === "approve") {
-    MaterialAPI.updatestatus(
-      approveDialog.id,
-      "APPROVED",
-      approveForm.remark,
-      approveForm.qualify
-    ).then(() => {
-      ElMessage.success("审核成功");
-      approveDialog.visible = false;
-      fetchData();
-    });
-  } else {
-    MaterialAPI.updatestatus(
-      approveDialog.id,
-      "RETURNED",
-      approveForm.remark,
-      approveForm.qualify
-    ).then(() => {
-      ElMessage.success("已退回");
-      approveDialog.visible = false;
-      fetchData();
-    });
-  }
 }
 
 // 批量审核
@@ -696,26 +795,85 @@ function handleBatchApprove() {
     return;
   }
 
+  batchApproveDialog.title = "批量审核";
+  batchApproveDialog.type = "approve";
+  batchApproveForm.qualify = 0;
   batchApproveForm.remark = "";
   batchApproveDialog.visible = true;
 }
 
-// 提交批量审核
-function submitBatchApprove() {
-  if (!batchApproveForm.remark.trim()) {
-    ElMessage.warning("请输入审核意见");
+// 批量退回
+function handleBatchReturn() {
+  if (selectIds.value.length === 0) {
+    ElMessage.warning("请选择要退回的申请");
     return;
   }
-  console.log(selectIds.value);
-  MaterialAPI.updatestatus(
-    selectIds.value,
-    "APPROVED",
-    batchApproveForm.remark,
-    batchApproveForm.qualify
-  ).then(() => {
-    ElMessage.success("批量审核成功");
-    batchApproveDialog.visible = false;
-    fetchData();
+
+  // 检查选中的申请是否都是可退回状态
+  const notReturnable = pageData.value.filter(
+    (item) => selectIds.value.includes(item.id) && !["SUBMITTED", "APPROVED"].includes(item.status)
+  );
+
+  if (notReturnable.length > 0) {
+    ElMessage.warning("只能退回已提交或已审核状态的申请");
+    return;
+  }
+
+  batchApproveDialog.title = "批量退回";
+  batchApproveDialog.type = "return";
+  batchApproveForm.qualify = 0;
+  batchApproveForm.remark = "";
+  batchApproveDialog.visible = true;
+}
+
+// 提交审核/退回
+function submitApprove() {
+  if (!approveFormRef.value) return;
+
+  approveFormRef.value.validate((valid) => {
+    if (!valid) return;
+
+    const action = approveDialog.type === "approve" ? "APPROVED" : "RETURNED";
+    const successMessage = approveDialog.type === "approve" ? "审核成功" : "已退回";
+
+    MaterialAPI.updatestatus(approveDialog.id, action, approveForm.remark, approveForm.qualify)
+      .then(() => {
+        ElMessage.success(successMessage);
+        approveDialog.visible = false;
+        fetchData();
+      })
+      .catch((error) => {
+        console.error(`${approveDialog.title}失败:`, error);
+        ElMessage.error(`${approveDialog.title}失败`);
+      });
+  });
+}
+
+// 提交批量审核/退回
+function submitBatchApprove() {
+  if (!batchApproveFormRef.value) return;
+
+  batchApproveFormRef.value.validate((valid) => {
+    if (!valid) return;
+
+    const action = batchApproveDialog.type === "approve" ? "APPROVED" : "RETURNED";
+    const successMessage = batchApproveDialog.type === "approve" ? "批量审核成功" : "批量退回成功";
+
+    MaterialAPI.updatestatus(
+      selectIds.value,
+      action,
+      batchApproveForm.remark,
+      batchApproveForm.qualify
+    )
+      .then(() => {
+        ElMessage.success(successMessage);
+        batchApproveDialog.visible = false;
+        fetchData();
+      })
+      .catch((error) => {
+        console.error(`${batchApproveDialog.title}失败:`, error);
+        ElMessage.error(`${batchApproveDialog.title}失败`);
+      });
   });
 }
 
@@ -792,7 +950,6 @@ const openDetailDialog = async (id: string) => {
 onMounted(() => {
   getDeptTree();
   syncRouteStatusToQuery();
-  //handleQuery();
 });
 </script>
 
@@ -995,6 +1152,51 @@ onMounted(() => {
           background-color: #f5f7fa;
         }
       }
+
+      // 操作列样式
+      .operation-column {
+        .cell {
+          padding: 4px !important;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+      }
+    }
+  }
+}
+
+.operation-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+  width: 100%;
+
+  .action-btn {
+    width: 100%;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .el-icon {
+      margin-right: 4px;
+      font-size: 14px;
+    }
+
+    .button-text {
+      font-size: 12px;
+      white-space: nowrap;
     }
   }
 }
@@ -1021,17 +1223,6 @@ onMounted(() => {
     &:hover {
       background: linear-gradient(135deg, #85ce61 0%, #5daf34 100%);
     }
-  }
-}
-
-.action-btn {
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all 0.2s;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -1134,6 +1325,13 @@ onMounted(() => {
   }
 }
 
+// 必填项红色星号样式
+:deep(.el-form-item.is-required .el-form-item__label::before) {
+  content: "*";
+  color: #f56c6c;
+  margin-right: 4px;
+}
+
 // 响应式设计
 @media (max-width: 768px) {
   .app-container {
@@ -1170,8 +1368,41 @@ onMounted(() => {
     margin-bottom: 8px;
   }
 
-  .action-btn {
-    margin: 0 4px;
+  // 手机端操作列优化
+  .operation-buttons {
+    .action-btn {
+      padding: 2px 4px;
+      min-height: 24px;
+
+      .el-icon {
+        margin-right: 0;
+        font-size: 12px;
+      }
+
+      .button-text {
+        display: none;
+      }
+    }
+  }
+
+  // 手机端表格样式调整
+  :deep(.el-table) {
+    .el-table__body {
+      .el-table__cell {
+        padding: 4px 2px;
+      }
+    }
+  }
+}
+
+// 中等屏幕适配
+@media (max-width: 992px) and (min-width: 769px) {
+  .operation-buttons {
+    .action-btn {
+      .button-text {
+        font-size: 11px;
+      }
+    }
   }
 }
 </style>

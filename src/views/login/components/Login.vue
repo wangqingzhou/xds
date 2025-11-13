@@ -14,7 +14,7 @@
       <el-form-item prop="username">
         <el-input
           v-model.trim="loginFormData.username"
-          placeholder="学号 / 姓名 / 手机号"
+          placeholder="学号/ 工号 /手机号"
           class="custom-input"
         >
           <template #prefix>

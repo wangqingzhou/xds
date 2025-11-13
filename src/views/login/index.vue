@@ -43,9 +43,7 @@
       <div class="footer">
         <el-text size="small" class="copyright">
           Copyright © 2025 All Rights Reserved.
-          <a href="http://beian.miit.gov.cn/" target="_blank" class="beian-link">
-            黑ICP备17005919号
-          </a>
+          <a href="http://beian.miit.gov.cn/" target="_blank" class="beian-link"></a>
         </el-text>
       </div>
     </div>

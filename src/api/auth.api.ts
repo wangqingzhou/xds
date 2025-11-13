@@ -30,6 +30,37 @@ const AuthAPI = {
       },
     });
   },
+
+  // 发送重置密码验证码
+  sendResetCode(data: { mobile: string; type: string }) {
+    return request<any, any>({
+      url: "/api/v1/sms/send-reset-code",
+      method: "post",
+      data,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "no-auth", // 明确指定不需要认证
+      },
+    });
+  },
+
+  // 通过手机号重置密码
+  resetPasswordByMobile(data: {
+    mobile: string;
+    code: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) {
+    return request<any, any>({
+      url: "/api/v1/sms/reset-password-by-mobile",
+      method: "post",
+      data,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "no-auth", // 明确指定不需要认证
+      },
+    });
+  },
   /** 刷新 token 接口*/
   refreshToken(refreshToken: string) {
     return request<any, LoginResult>({

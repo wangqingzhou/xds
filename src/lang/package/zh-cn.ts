@@ -27,20 +27,7 @@ export default {
     capsLock: "大写锁定已打开",
     rememberMe: "记住我",
     forgetPassword: "忘记密码？",
-    message: {
-      username: {
-        required: "请输入用户名",
-      },
-      password: {
-        required: "请输入密码",
-        min: "密码不能少于6位",
-        confirm: "请再次确认密码",
-        inconformity: "两次密码输入不一致",
-      },
-      captchaCode: {
-        required: "请输入验证码",
-      },
-    },
+
     otherLoginMethods: "其他",
     resetPassword: "重置密码",
     thinkOfPasswd: "想起密码？",
@@ -50,7 +37,55 @@ export default {
     haveAccount: "已有账号？",
     noAccount: "您没有账号？",
     quickFill: "快速填写",
+
     reg: "注 册",
+
+    getCode: "获取验证码",
+    newPassword: {
+      placeholder: "请输入新密码",
+    },
+    confirmPassword: {
+      placeholder: "请确认新密码",
+    },
+    code: {
+      placeholder: "请输入验证码",
+    },
+    phone: {
+      placeholder: "请输入手机号",
+    },
+    message: {
+      username: {
+        required: "请输入学号或手机号",
+        // 可扩展其他规则，如格式校验
+        invalid: "请输入正确的学号或手机号格式",
+      },
+      password: {
+        required: "请输入密码",
+        min: "密码长度不能少于6位",
+      },
+      phone: {
+        required: "请输入手机号",
+        invalid: "请输入正确的手机号格式",
+      },
+      code: {
+        required: "请输入验证码",
+        invalid: "验证码为6位数字",
+        sent: "验证码发送成功",
+        failed: "验证码发送失败",
+      },
+      newPassword: {
+        required: "请输入新密码",
+      },
+      confirmPassword: {
+        required: "请确认密码",
+        notMatch: "两次输入的密码不一致",
+      },
+
+      resetPassword: {
+        success: "密码重置成功",
+        failed: "密码重置失败",
+      },
+    },
   },
   // 导航栏国际化
   navbar: {

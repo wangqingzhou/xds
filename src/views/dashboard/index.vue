@@ -277,10 +277,10 @@ const vesionList = ref<VersionItem[]>([
   {
     id: "1",
     title: "v1.0",
-    date: "2025-08-25 00:00:00",
-    content: "VUE3全栈前端后台上线",
-    link: "https://gitee.com/hebwkznkjyxgs_admin/micrai",
-    tag: "里程碑",
+    date: "2025-11-12 00:00:00",
+    content: "全新升级",
+    link: "http://micrai.com/",
+    tag: "优评智审平台",
   },
 ]);
 

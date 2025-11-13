@@ -42,6 +42,11 @@ export interface MaterialForm {
   // 添加状态字段
   status: string;
   reviewRemark: string;
+  // 发表文章数量统计
+  articleCounts: {};
+
+  // 知识产权数量统计
+  ipCounts: {};
 }
 export interface MaterialPageQuery {
   pageNum?: number;
@@ -56,6 +61,7 @@ export interface MaterialPageQuery {
   awardLevel?: string;
   startTime?: string; // 开始时间
   endTime?: string; // 结束时间
+  education?: string; // 学历参数
 }
 export interface MaterialPageVO {
   id: number;

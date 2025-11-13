@@ -1,7 +1,7 @@
-<!-- components/DictTag.vue -->
+<!-- components/DictLabel.vue -->
 <template>
-  <el-tag v-if="label" :type="tagType" :size="size" effect="light">{{ label }}</el-tag>
-  <span v-else>{{ modelValue }}</span>
+  <span v-if="isEmptyValue">-</span>
+  <span v-else>{{ displayText }}</span>
 </template>
 
 <script setup lang="ts">
@@ -10,42 +10,30 @@ import { useDictStore } from "@/store";
 const props = defineProps({
   code: { type: String, required: true },
   modelValue: { type: [String, Number], required: true },
-  size: { type: String, default: "small" },
 });
 
-const label = ref("");
-const tagType = ref("info");
+const displayText = ref("");
 const dictStore = useDictStore();
 
-/**
- * 根据值获取对应的标签类型
- */
-const getTagTypeByValue = (value: any): string => {
-  // 针对 yesno 字典的特殊处理
-  if (props.code === "yesno") {
-    // 根据您的字典值配置
-    if (value === 1 || value === 20) return "success"; // 是 - 绿色
-    if (value === 0 || value === 21) return "danger"; // 否 - 红色
-  }
-
-  if (props.code === "status") {
-    // 根据您的字典值配置
-    if (value === 36) return "success"; // 是 - 绿色
-    if (value === 35) return "danger"; // 否 - 红色
-  }
-  // 针对 sex 字典的特殊处理
-  if (props.code === "sex") {
-    if (value === 64) return "primary"; // 男 - 蓝色
-    if (value === 65) return "danger"; // 女 - 红色
-  }
-
-  return "info"; // 默认 - 灰色
-};
+// 检查是否为空值
+const isEmptyValue = computed(() => {
+  return (
+    props.modelValue === 0 ||
+    props.modelValue === null ||
+    props.modelValue === undefined ||
+    props.modelValue === ""
+  );
+});
 
 /**
  * 根据字典项的值获取对应的 label
  */
 const getLabelByValue = async (dictCode: string, value: any) => {
+  // 如果是空值，直接返回空字符串
+  if (value === 0 || value === null || value === undefined || value === "") {
+    return "";
+  }
+
   await dictStore.loadDictItems(dictCode);
   const dictItems = dictStore.getDictItems(dictCode);
 
@@ -64,14 +52,13 @@ const getLabelByValue = async (dictCode: string, value: any) => {
 };
 
 /**
- * 更新 label
+ * 更新显示文本
  */
-const updateLabel = async () => {
+const updateDisplayText = async () => {
   if (!props.code || props.modelValue === undefined) return;
 
-  const newLabel = await getLabelByValue(props.code, props.modelValue);
-  label.value = newLabel;
-  tagType.value = getTagTypeByValue(props.modelValue);
+  const newText = await getLabelByValue(props.code, props.modelValue);
+  displayText.value = newText;
 };
 
 // 监听变化
@@ -79,7 +66,7 @@ watch(
   [() => props.code, () => props.modelValue],
   async () => {
     if (props.code) {
-      await updateLabel();
+      await updateDisplayText();
     }
   },
   { immediate: true }

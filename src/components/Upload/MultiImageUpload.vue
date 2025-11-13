@@ -2,7 +2,6 @@
 <template>
   <div class="manual-upload-container">
     <!-- 显示已上传文件 -->
-    <!-- 显示已上传文件 -->
     <div v-if="displayFiles.length > 0" class="file-list">
       <div v-for="(file, index) in displayFiles" :key="file.uid" class="file-item">
         <div class="file-preview">
@@ -15,25 +14,44 @@
             <el-icon><QuestionFilled /></el-icon>
             <span>{{ getFileExtension(file.url) }}</span>
           </div>
+
+          <!-- 图片操作遮罩层 -->
+          <div v-if="isImage(file.url)" class="image-overlay">
+            <div class="action-buttons">
+              <el-button
+                class="action-btn view-btn"
+                :icon="ZoomIn"
+                @click.stop="handlePreview(file, index)"
+              />
+              <el-button
+                class="action-btn delete-btn"
+                :icon="Delete"
+                @click.stop="handleFileRemove(index)"
+              />
+            </div>
+          </div>
+
+          <!-- 非图片文件的操作按钮 -->
+          <div v-else class="file-actions">
+            <el-button link class="action-btn" @click.stop="handlePreview(file, index)">
+              <el-icon><ZoomIn /></el-icon>
+            </el-button>
+            <el-button link class="action-btn" @click.stop="handleFileRemove(index)">
+              <el-icon><Delete /></el-icon>
+            </el-button>
+          </div>
         </div>
-        <div class="file-info">
+
+        <!-- 隐藏文件名显示 -->
+        <!-- <div class="file-info">
           <div class="file-name">{{ file.name }}</div>
           <div class="file-status" :class="file.status">
             {{ file.status === "success" ? "上传成功" : "上传中" }}
           </div>
-        </div>
-        <div class="file-actions">
-          <el-button link @click="handlePreview(file, index)">
-            <el-icon><ZoomIn /></el-icon>
-          </el-button>
-          <el-button link @click="handleFileRemove(index)">
-            <el-icon><Delete /></el-icon>
-          </el-button>
-        </div>
+        </div> -->
       </div>
     </div>
 
-    <!-- 上传按钮 -->
     <!-- 上传按钮 -->
     <el-upload
       v-if="displayFiles.length < props.limit"
@@ -449,7 +467,7 @@ onMounted(() => {
 
 .file-item {
   width: 120px;
-  height: 140px;
+  height: 120px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
   padding: 8px;
@@ -458,6 +476,7 @@ onMounted(() => {
   background: white;
   position: relative;
   transition: border-color 0.2s;
+  overflow: hidden;
 }
 
 .file-item:hover {
@@ -473,6 +492,7 @@ onMounted(() => {
   overflow: hidden;
   background: #f9fafb;
   border-radius: 4px;
+  position: relative;
 }
 
 .preview-image {
@@ -480,6 +500,90 @@ onMounted(() => {
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
+}
+
+/* 图片遮罩层 */
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+  border-radius: 4px;
+}
+
+.file-preview:hover .image-overlay {
+  opacity: 1;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn.view-btn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #165dff;
+}
+
+.action-btn.view-btn:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.action-btn.delete-btn {
+  background: rgba(255, 255, 255, 0.9);
+  color: #f56c6c;
+}
+
+.action-btn.delete-btn:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+/* 非图片文件的操作按钮 */
+.file-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.file-preview:hover .file-actions {
+  opacity: 1;
+}
+
+.file-actions .action-btn {
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+}
+
+.file-actions .action-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
 }
 
 .pdf-preview {
@@ -510,45 +614,9 @@ onMounted(() => {
   margin-bottom: 4px;
 }
 
+/* 隐藏文件名区域 */
 .file-info {
-  margin-top: 8px;
-}
-
-.file-name {
-  font-size: 12px;
-  color: #374151;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-}
-
-.file-status {
-  font-size: 10px;
-  text-align: center;
-  margin-top: 2px;
-}
-
-.file-status.success {
-  color: #10b981;
-}
-
-.file-status.uploading {
-  color: #f59e0b;
-}
-
-.file-actions {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: flex;
-  gap: 2px;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.file-item:hover .file-actions {
-  opacity: 1;
+  display: none;
 }
 
 .upload-trigger {
@@ -577,10 +645,65 @@ onMounted(() => {
   margin-bottom: 8px;
 }
 
-.upload-tip {
+.upload-text {
   font-size: 12px;
-  margin-top: 4px;
   text-align: center;
-  color: #9ca3af;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .file-item {
+    width: 100px;
+    height: 100px;
+  }
+
+  .upload-trigger {
+    width: 100px;
+    height: 100px;
+  }
+
+  .action-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .action-btn .el-icon {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .file-list {
+    gap: 8px;
+  }
+
+  .file-item {
+    width: 80px;
+    height: 80px;
+    padding: 4px;
+  }
+
+  .upload-trigger {
+    width: 80px;
+    height: 80px;
+  }
+
+  .upload-trigger .el-icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .upload-text {
+    font-size: 10px;
+  }
+
+  .action-btn {
+    width: 24px;
+    height: 24px;
+  }
+
+  .action-btn .el-icon {
+    font-size: 12px;
+  }
 }
 </style>

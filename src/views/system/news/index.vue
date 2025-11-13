@@ -83,14 +83,26 @@
           >
             <el-table-column type="selection" width="55" align="center" />
             <el-table-column type="index" label="序号" width="60" />
-            <el-table-column label="标题" prop="title" min-width="200" />
+            <el-table-column
+              label="标题"
+              prop="title"
+              min-width="200"
+              :show-overflow-tooltip="true"
+            />
             <el-table-column
               align="center"
               label="栏目"
               prop="classname"
               width="150"
-            ></el-table-column>
-            <el-table-column align="center" label="发布人" prop="createByName" width="150" />
+              :show-overflow-tooltip="true"
+            />
+            <el-table-column
+              align="center"
+              label="发布人"
+              prop="createByName"
+              width="150"
+              :show-overflow-tooltip="true"
+            />
             <el-table-column align="center" label="文章权重" width="100">
               <template #default="scope">
                 <DictLabel v-model="scope.row.level" code="weight" />
@@ -99,72 +111,142 @@
 
             <el-table-column align="center" label="状态" min-width="100">
               <template #default="scope">
-                <el-tag v-if="scope.row.publishStatus == 0" type="info">未发布</el-tag>
-                <el-tag v-if="scope.row.publishStatus == 1" type="success">已发布</el-tag>
-                <el-tag v-if="scope.row.publishStatus == -1" type="warning">已撤回</el-tag>
+                <el-tag v-if="scope.row.publishStatus == 0" type="info" size="small">未发布</el-tag>
+                <el-tag v-if="scope.row.publishStatus == 1" type="success" size="small">
+                  已发布
+                </el-tag>
+                <el-tag v-if="scope.row.publishStatus == -1" type="warning" size="small">
+                  已撤回
+                </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="创建时间" width="250">
+
+            <el-table-column label="创建时间" width="180">
               <template #default="scope">
-                <div class="time-display-container">
-                  <!-- 创建时间 -->
-                  <div class="flex-x-start time-item">
-                    <el-date-picker
-                      v-model="scope.row.createTime"
-                      type="datetime"
-                      readonly
-                      format="YYYY-MM-DD HH:mm:ss"
-                      :disabled="true"
-                      class="time-value"
-                    />
-                  </div>
+                <div class="time-display">
+                  {{ formatTime(scope.row.createTime) }}
                 </div>
               </template>
             </el-table-column>
-            <el-table-column align="center" fixed="right" label="操作" width="270">
+
+            <!-- 响应式操作列 -->
+            <el-table-column
+              align="center"
+              label="操作"
+              :width="isMobile ? 120 : 280"
+              class-name="operation-column"
+              :fixed="isMobile ? false : 'right'"
+            >
               <template #default="scope">
-                <el-button type="primary" size="small" link @click="openDetailDialog(scope.row.id)">
-                  查看
-                </el-button>
+                <!-- 移动端操作菜单 -->
+                <div v-if="isMobile" class="mobile-actions">
+                  <el-button
+                    type="primary"
+                    size="small"
+                    link
+                    class="mobile-view-btn"
+                    @click="openDetailDialog(scope.row.id)"
+                  >
+                    查看
+                  </el-button>
+                  <el-dropdown
+                    size="small"
+                    trigger="click"
+                    @command="(command) => handleMobileAction(command, scope.row)"
+                  >
+                    <el-button type="primary" link size="small" class="mobile-more-btn">
+                      <el-icon><More /></el-icon>
+                    </el-button>
+                    <template #dropdown>
+                      <el-dropdown-menu>
+                        <el-dropdown-item
+                          v-if="scope.row.publishStatus != 1"
+                          v-hasPerm="['sys:news:publish']"
+                          command="publish"
+                        >
+                          <el-icon><Promotion /></el-icon>
+                          发布
+                        </el-dropdown-item>
+                        <el-dropdown-item command="share">
+                          <el-icon><Share /></el-icon>
+                          分享到小红书
+                        </el-dropdown-item>
+                        <el-dropdown-item
+                          v-if="scope.row.publishStatus == 1"
+                          v-hasPerm="['sys:news:revoke']"
+                          command="revoke"
+                        >
+                          <el-icon><RefreshLeft /></el-icon>
+                          撤回
+                        </el-dropdown-item>
+                        <el-dropdown-item command="edit">
+                          <el-icon><Edit /></el-icon>
+                          编辑
+                        </el-dropdown-item>
+                        <el-dropdown-item
+                          v-if="scope.row.publishStatus != 1"
+                          v-hasPerm="['sys:news:delete']"
+                          command="delete"
+                          class="danger-item"
+                        >
+                          <el-icon><Delete /></el-icon>
+                          删除
+                        </el-dropdown-item>
+                      </el-dropdown-menu>
+                    </template>
+                  </el-dropdown>
+                </div>
 
-                <el-button
-                  v-if="scope.row.publishStatus != 1"
-                  v-hasPerm="['sys:news:publish']"
-                  type="primary"
-                  size="small"
-                  link
-                  @click="handlePublish(scope.row.id)"
-                >
-                  发布
-                </el-button>
-                <el-button type="primary" size="small" link @click="shareXhs(scope.row.id)">
-                  分享到小红书
-                </el-button>
-                <el-button
-                  v-if="scope.row.publishStatus == 1"
-                  v-hasPerm="['sys:news:revoke']"
-                  type="primary"
-                  size="small"
-                  link
-                  @click="handleRevoke(scope.row.id)"
-                >
-                  撤回
-                </el-button>
+                <!-- PC端操作按钮 -->
+                <div v-else class="pc-actions">
+                  <el-button
+                    type="primary"
+                    size="small"
+                    link
+                    @click="openDetailDialog(scope.row.id)"
+                  >
+                    查看
+                  </el-button>
 
-                <router-link :to="'/news/edit/' + scope.row.id">
-                  <el-button type="primary" size="small" icon="el-icon-edit">编辑</el-button>
-                </router-link>
+                  <el-button
+                    v-if="scope.row.publishStatus != 1"
+                    v-hasPerm="['sys:news:publish']"
+                    type="primary"
+                    size="small"
+                    link
+                    @click="handlePublish(scope.row.id)"
+                  >
+                    发布
+                  </el-button>
+                  <el-button type="primary" size="small" link @click="shareXhs(scope.row.id)">
+                    分享
+                  </el-button>
+                  <el-button
+                    v-if="scope.row.publishStatus == 1"
+                    v-hasPerm="['sys:news:revoke']"
+                    type="primary"
+                    size="small"
+                    link
+                    @click="handleRevoke(scope.row.id)"
+                  >
+                    撤回
+                  </el-button>
 
-                <el-button
-                  v-if="scope.row.publishStatus != 1"
-                  v-hasPerm="['sys:news:delete']"
-                  type="danger"
-                  size="small"
-                  link
-                  @click="handleDelete(scope.row.id)"
-                >
-                  删除
-                </el-button>
+                  <router-link :to="'/news/edit/' + scope.row.id">
+                    <el-button type="primary" size="small">编辑</el-button>
+                  </router-link>
+
+                  <el-button
+                    v-if="scope.row.publishStatus != 1"
+                    v-hasPerm="['sys:news:delete']"
+                    type="danger"
+                    size="small"
+                    link
+                    @click="handleDelete(scope.row.id)"
+                  >
+                    删除
+                  </el-button>
+                </div>
               </template>
             </el-table-column>
           </el-table>
@@ -179,6 +261,7 @@
         </el-card>
       </el-col>
     </el-row>
+
     <!-- 文章详情 -->
     <el-dialog
       v-model="detailDialog.visible"
@@ -239,8 +322,11 @@
 </template>
 
 <script setup lang="ts">
+import { ref, reactive, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import { useAppStore } from "@/store/modules/app.store";
 import { DeviceEnum } from "@/enums/settings/device.enum";
+import { Close, More, Promotion, Share, RefreshLeft, Edit, Delete } from "@element-plus/icons-vue";
 
 import NoticeAPI, {
   NoticePageVO,
@@ -260,6 +346,7 @@ defineOptions({
 });
 
 const appStore = useAppStore();
+const router = useRouter();
 
 const queryFormRef = ref();
 const userFormRef = ref();
@@ -280,6 +367,21 @@ const selectIds = ref<number[]>([]);
 // 栏目下拉数据源
 const classOptions = ref<OptionType[]>();
 
+// 计算是否移动端
+const isMobile = computed(() => {
+  return appStore.device === DeviceEnum.MOBILE;
+});
+
+// 格式化时间显示（移动端简化）
+const formatTime = (timeString: string) => {
+  if (!timeString) return "";
+  if (isMobile.value) {
+    // 移动端显示简化的日期
+    return timeString.split(" ")[0];
+  }
+  return timeString;
+};
+
 // 获取数据
 async function fetchData() {
   loading.value = true;
@@ -296,6 +398,7 @@ const detailDialog = reactive({
   visible: false,
 });
 const currentNotice = ref<NoticeDetailVO>({});
+
 // 查询（重置页码后获取数据）
 function handleQuery() {
   queryParams.pageNum = 1;
@@ -332,6 +435,28 @@ function handleRevoke(id: string) {
   });
 }
 
+// 移动端操作处理
+const handleMobileAction = (command: string, row: any) => {
+  switch (command) {
+    case "publish":
+      handlePublish(row.id);
+      break;
+    case "share":
+      shareXhs(row.id);
+      break;
+    case "revoke":
+      handleRevoke(row.id);
+      break;
+    case "edit":
+      // 使用编程式导航
+      router.push(`/news/edit/${row.id}`);
+      break;
+    case "delete":
+      handleDelete(row.id);
+      break;
+  }
+};
+
 // 分享文章
 declare global {
   interface Window {
@@ -343,12 +468,29 @@ function shareXhs(id: number) {
   NoticeAPI.xhs(id).then((data: any) => {
     console.log(data);
     console.log(data.picUrl);
+    // 提取单个图片URL
+    let imageUrl = "";
+    if (Array.isArray(data.picUrl) && data.picUrl.length > 0) {
+      imageUrl = data.picUrl[0];
+    } else if (typeof data.picUrl === "string") {
+      // 如果是字符串格式的数组，尝试解析
+      try {
+        const parsed = JSON.parse(data.picUrl);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          imageUrl = parsed[0];
+        }
+      } catch (e) {
+        imageUrl = data.picUrl;
+      }
+    }
+
+    console.log("使用的图片URL:", imageUrl);
     window.xhs.share({
       shareInfo: {
         type: "normal", // 或 'video'
         title: data.title, // 分享标题
         content: data.content, // 分享内容
-        images: [data.picUrl], // 图片地址（必须是服务器地址）
+        images: [imageUrl], // 图片地址（必须是服务器地址）
       },
       verifyConfig: {
         appKey: data.appKey,
@@ -357,12 +499,9 @@ function shareXhs(id: number) {
         signature: data.signature,
       },
       fail: (error: any) => {
-        // ✅ 添加参数 error
-        console.error("分享失败:", error); // 现在可以正确打印
+        console.error("分享失败:", error);
       },
     });
-    //    ElMessage.success("成功");
-    // handleQuery();
   });
 }
 
@@ -412,3 +551,137 @@ onMounted(() => {
   handleQuery();
 });
 </script>
+
+<style scoped>
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .mobile-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+  }
+
+  .mobile-view-btn,
+  .mobile-more-btn {
+    padding: 6px 8px;
+    min-height: 28px;
+    font-size: 12px;
+  }
+
+  .time-display {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .data-table__content .el-table__body-wrapper {
+    overflow-x: auto;
+  }
+
+  /* 在移动端隐藏部分非关键列 */
+  .data-table__content :deep(.el-table__row td:nth-child(4)),
+  .data-table__content :deep(.el-table__row td:nth-child(5)) {
+    display: none;
+  }
+
+  .data-table__content :deep(.el-table__header th:nth-child(4)),
+  .data-table__content :deep(.el-table__header th:nth-child(5)) {
+    display: none;
+  }
+
+  /* 操作列在移动端不固定 */
+  .operation-column {
+    position: relative !important;
+  }
+
+  /* 移动端下拉菜单样式 */
+  .mobile-actions :deep(.el-dropdown) {
+    line-height: 1;
+  }
+
+  .mobile-actions :deep(.el-button) {
+    padding: 6px 8px;
+    height: auto;
+  }
+}
+
+/* 操作列样式 */
+.operation-column :deep(.cell) {
+  padding: 4px !important;
+  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+}
+
+.mobile-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.danger-item {
+  color: #f56c6c;
+}
+
+.danger-item:hover {
+  color: #f56c6c;
+  background-color: transparent;
+}
+
+/* 时间显示容器 */
+.time-display {
+  font-size: 12px;
+  color: #606266;
+}
+
+/* 表格内容区域响应式 */
+.data-table__content {
+  width: 100%;
+}
+
+/* 搜索区域响应式 */
+@media (max-width: 768px) {
+  .search-container .el-form--inline .el-form-item {
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+
+  .search-buttons {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+/* 确保下拉菜单在移动端可点击 */
+:deep(.el-dropdown-menu__item) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+:deep(.el-dropdown-menu__item .el-icon) {
+  font-size: 16px;
+}
+
+/* 移动端表格单元格点击区域优化 */
+:deep(.el-table__row td) {
+  padding: 8px 4px;
+}
+
+:deep(.el-table .cell) {
+  line-height: 1.4;
+}
+</style>
